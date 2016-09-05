@@ -366,7 +366,7 @@ public class CommandExec implements CommandExecutor {
 		OfflinePlayer offP = Bukkit.getOfflinePlayer(args[1]);
 
 		//if the player has played before, trust them to the island
-		if (offP.getLastPlayed()==0) {
+		if (offP.getLastPlayed()==0 && !offP.isOnline()) {
 			p.sendMessage(ChatColor.RED + "The specified player has never played on this server.");
 			return false;
 		}
