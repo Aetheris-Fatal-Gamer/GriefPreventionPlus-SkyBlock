@@ -17,8 +17,6 @@ import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.Vector2D;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
@@ -81,11 +79,9 @@ public class Utils {
 			fis.close();
 			
 			ClipboardHolder clipboardHolder = new ClipboardHolder(clipboard, worldData);
-			BukkitWorld bukkitWorld = new BukkitWorld(location.getWorld());
-			EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((com.sk89q.worldedit.world.World) bukkitWorld, 1000000);
+			EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(fromBukkitToWorldEditWorld(location.getWorld()), 1000000);
 			
-			Vector vector = BukkitUtil.toVector(location);
-			Operation operation = clipboardHolder.createPaste(editSession, LegacyWorldData.getInstance()).to(vector).ignoreAirBlocks(true).build();
+			Operation operation = clipboardHolder.createPaste(editSession, LegacyWorldData.getInstance()).to(toVector(location)).ignoreAirBlocks(true).build();
 			Operations.completeLegacy(operation);
 		} catch (MaxChangedBlocksException | IOException e) {
 			e.printStackTrace();
@@ -93,19 +89,19 @@ public class Utils {
 	}
 	
 	public static boolean regen(Location center, int blockRadius) {
-		BukkitWorld bukkitWorld = new BukkitWorld(center.getWorld());
-		EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((com.sk89q.worldedit.world.World) bukkitWorld, 1000000);
+		com.sk89q.worldedit.world.World world = fromBukkitToWorldEditWorld(center.getWorld());
+		EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, 1000000);
 		Region region = new CuboidRegion(new Vector(center.getBlockX()-blockRadius,0,center.getBlockZ()-blockRadius), new Vector(center.getBlockX()+blockRadius,255,center.getBlockZ()+blockRadius));
 		
 		
-		return bukkitWorld.regenerate(region, editSession);
+		return world.regenerate(region, editSession);
 	}
 	
 	public static void setBiome(Location location, int radius, String biomeName) {
-		BukkitWorld bukkitWorld = new BukkitWorld(location.getWorld());
-		EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((com.sk89q.worldedit.world.World) bukkitWorld, 1000000);
-		bukkitWorld.getWorldData().getBiomeRegistry().getBiomes();
-		BaseBiome biome = Biomes.findBiomeByName(bukkitWorld.getWorldData().getBiomeRegistry().getBiomes(), biomeName, bukkitWorld.getWorldData().getBiomeRegistry());
+		com.sk89q.worldedit.world.World world = fromBukkitToWorldEditWorld(location.getWorld());
+		EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((com.sk89q.worldedit.world.World) world, 1000000);
+		world.getWorldData().getBiomeRegistry().getBiomes();
+		BaseBiome biome = Biomes.findBiomeByName(world.getWorldData().getBiomeRegistry().getBiomes(), biomeName, world.getWorldData().getBiomeRegistry());
 		if (biome == null) {
 			throw new IllegalStateException("Biome not found");
 		}
@@ -141,5 +137,19 @@ public class Utils {
 		}
 		
 		return sb.toString();
+	}
+	
+
+	public static com.sk89q.worldedit.world.World fromBukkitToWorldEditWorld(org.bukkit.World world) {
+		for (com.sk89q.worldedit.world.World w : WorldEdit.getInstance().getServer().getWorlds()) {
+			if (world.getName().equals(w.getName())) {
+				return w;
+			}
+		}
+		return null;
+	}
+	
+	public static Vector toVector(Location loc) {
+		return new Vector(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 	}
 }

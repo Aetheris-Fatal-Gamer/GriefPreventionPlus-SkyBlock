@@ -13,6 +13,9 @@ YLevel: 64
 # New players will be automatically teleported to their island upon login
 NewbiesAutoSpawn: false
 
+# When the island claim expires or the island gets deleted, delete the island region file to save hard disk space
+DeleteRegion: true
+
 # Teleport countdown in seconds
 TPCountdown: 5
 

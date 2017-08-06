@@ -10,7 +10,6 @@ public class GPPSkyBlock extends JavaPlugin {
 	private DataStore dataStore;
 	
 	// TODO LIST
-	// obsidian to lava bucket
 	// clickable sign that teleports the player to his island
 	// custom messages
 	

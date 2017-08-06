@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import net.kaikk.mc.gpp.Claim;
-import net.kaikk.mc.gpp.ClaimPermission;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -15,6 +13,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import net.kaikk.mc.gpp.Claim;
+import net.kaikk.mc.gpp.ClaimPermission;
+import net.kaikk.mc.gpp.GriefPreventionPlus;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent.Reason;
 
 public class CommandExec implements CommandExecutor {
 	private GPPSkyBlock instance;
@@ -54,6 +58,12 @@ public class CommandExec implements CommandExecutor {
 				return biomeList(sender);
 			case "setradius":
 				return setRadius(sender, label, args);
+			case "delete":
+				return delete(sender, label, args);
+			case "private":
+				return privatec(sender, label, args);
+			case "public":
+				return publicc(sender, label, args);
 			}
 
 			sender.sendMessage(ChatColor.RED+"Wrong parameter.");
@@ -61,6 +71,122 @@ public class CommandExec implements CommandExecutor {
 		}
 
 		return false;
+	}
+
+	private boolean publicc(CommandSender sender, String label, String[] args) {
+		if (!sender.hasPermission("gppskyblock.private")) {
+			sender.sendMessage(ChatColor.RED+"You don't have permission to run this command.");
+			return false;
+		}
+
+		if (!(sender instanceof Player)) {
+			sender.sendMessage(ChatColor.RED+"Only players can run this command.");
+			return false;
+		}
+		Player player = (Player) sender;
+
+		Island island = instance.dataStore().getIsland(player.getUniqueId());
+		if (island == null) {
+			sender.sendMessage(ChatColor.RED + "The specified player does not have an island.");
+			return false;
+		}
+
+		Claim claim = island.getClaim();
+		claim.dropPermission(player.getUniqueId());
+		claim.setPermission(GriefPreventionPlus.UUID0, ClaimPermission.ENTRY);
+		sender.sendMessage(ChatColor.GOLD + "Your island can be now visited by all players.");
+		return true;
+	}
+
+	private boolean privatec(CommandSender sender, String label, String[] args) {
+		if (!sender.hasPermission("gppskyblock.private")) {
+			sender.sendMessage(ChatColor.RED+"You don't have permission to run this command.");
+			return false;
+		}
+
+		if (!(sender instanceof Player)) {
+			sender.sendMessage(ChatColor.RED+"Only players can run this command.");
+			return false;
+		}
+		Player player = (Player) sender;
+
+		Island island = instance.dataStore().getIsland(player.getUniqueId());
+		if (island == null) {
+			sender.sendMessage(ChatColor.RED + "The specified player does not have an island.");
+			return false;
+		}
+
+		Claim claim = island.getClaim();
+		claim.setPermission(player.getUniqueId(), ClaimPermission.ENTRY);
+		claim.dropPermission(GriefPreventionPlus.UUID0);
+		sender.sendMessage(ChatColor.GOLD + "Your island is now private and can be visited only by the players you specify with /entrytrust [player]");
+		return true;
+	}
+
+	@SuppressWarnings("deprecation")
+	private boolean delete(CommandSender sender, String label, String[] args) {
+		if (args.length<2) {
+			sender.sendMessage(ChatColor.RED + "Usage: /" + label + " delete [PlayerName]");
+			return false;
+		}
+
+		Player player = null;
+		if (sender instanceof Player) {
+			player = (Player) sender;
+		}
+
+		if (sender.hasPermission("gppskyblock.delete.any")) {
+			OfflinePlayer offP = Bukkit.getOfflinePlayer(args[1]);
+			if (!offP.hasPlayedBefore() && !offP.isOnline()) {
+				sender.sendMessage(ChatColor.RED + "Unknown player");
+				return false;
+			}
+
+			Island island = instance.dataStore().getIsland(offP.getUniqueId());
+			if (island == null) {
+				sender.sendMessage(ChatColor.RED + "The specified player does not have an island.");
+				return false;
+			}
+
+			ClaimDeleteEvent event = new ClaimDeleteEvent(island.getClaim(), player, Reason.DELETE);
+			Bukkit.getPluginManager().callEvent(event);
+			if (event.isCancelled()) {
+				sender.sendMessage(ChatColor.RED + "This island can't be deleted.");
+				return false;
+			}
+			GriefPreventionPlus.getInstance().getDataStore().deleteClaim(island.getClaim());
+			return true;
+		}
+
+		if (!sender.hasPermission("gppskyblock.delete")) {
+			sender.sendMessage(ChatColor.RED+"You don't have permission to run this command.");
+			return false;
+		}
+
+		if (player == null) {
+			return false;
+		}
+
+		if (!args[1].equalsIgnoreCase(player.getName())) {
+			sender.sendMessage(ChatColor.RED + "You cannot delete "+args[1]+"'s island.");
+			return false;
+		}
+
+		Island island = instance.dataStore().getIsland(player.getUniqueId());
+		if (island == null) {
+			sender.sendMessage(ChatColor.RED + "You do not have an island.");
+			return false;
+		}
+
+		ClaimDeleteEvent event = new ClaimDeleteEvent(island.getClaim(), player, Reason.DELETE);
+		Bukkit.getPluginManager().callEvent(event);
+		if (event.isCancelled()) {
+			sender.sendMessage(ChatColor.RED + "Your island can't be deleted.");
+			return false;
+		}
+		GriefPreventionPlus.getInstance().getDataStore().deleteClaim(island.getClaim());
+		sender.sendMessage(ChatColor.RED + "Your island has been deleted.");
+		return true;
 	}
 
 	private String help(String label) {
@@ -71,7 +197,9 @@ public class CommandExec implements CommandExecutor {
 				ChatColor.AQUA + "/" + label + " setspawn - sets your island's spawn at your current location\n" +
 				ChatColor.AQUA + "/" + label + " setbiome (island|chunk|block) [biome] - sets the biome of your island\n" +
 				ChatColor.AQUA + "/" + label + " biomelist - list allowed biomes that can be used with setbiome\n" +
-				ChatColor.AQUA + "/" + label + " invite [playername] - Adds a player to your island and tells them how to get to your island.\n" +
+				ChatColor.AQUA + "/" + label + " invite [PlayerName] - Adds a player to your island and tells them how to get to your island.\n" +
+				ChatColor.AQUA + "/" + label + " delete [PlayerName] - Delete the specified island. You must specify your own name.\n" +
+				ChatColor.AQUA + "/" + label + " private/public - Allow or deny all players to visit your island.\n" +
 				ChatColor.RED + "You can use almost all GriefPreventionPlus commands on your island, like /trust [PlayerName].\n" +
 				(Bukkit.getPluginManager().isPluginEnabled("GPPCities") ? ChatColor.RED + "GriefPreventionPlus-Cities is supported. Use '/city help' for more info." : "");
 	}
@@ -287,7 +415,7 @@ public class CommandExec implements CommandExecutor {
 
 		if (args.length!=3) {
 			sender.sendMessage(ChatColor.RED + "/" + label + " setradius (radius) (PlayerName) - sets the size of the specified player's island in block radius");
-			return false;		
+			return false;
 		}
 
 		int radius;
@@ -341,18 +469,18 @@ public class CommandExec implements CommandExecutor {
 			sender.sendMessage(ChatColor.RED+"Only players can run this command.");
 			return false;
 		}
-		
+
 		if (args.length<2) {
 			sender.sendMessage(ChatColor.RED + "/" + label + " invite (PlayerName) - Adds a player to your island and tells them how to get to your island.");
 			return false;
 		}
-		
+
 		//cast sender to player
 		Player p = (Player) sender;
-		
+
 		//get the player's island
 		Island is = this.instance.dataStore().getIsland(p.getUniqueId());
-		
+
 		//if the island doesn't exist, don't continue
 		if (is == null) {
 			p.sendMessage(ChatColor.RED + "You do not have an island.");
@@ -370,7 +498,7 @@ public class CommandExec implements CommandExecutor {
 			p.sendMessage(ChatColor.RED + "The specified player has never played on this server.");
 			return false;
 		}
-		
+
 		//add them to the island's claim
 		claim.setPermission(offP.getUniqueId(), ClaimPermission.BUILD);
 
@@ -378,8 +506,8 @@ public class CommandExec implements CommandExecutor {
 		if (offP.isOnline()) {
 			((Player) offP).sendMessage(ChatColor.GREEN + "Hey! " + p.getName() + " has invited you to their island! To teleport to them, do /is spawn " + sender.getName());
 		}
-		p.sendMessage(ChatColor.GREEN + offP.getName() + " has been invited to your island.");
-		
+		p.sendMessage(ChatColor.GREEN + offP.getName() + " can now access your island!");
+
 		return true;
 	}
 }

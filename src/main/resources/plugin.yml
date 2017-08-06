@@ -26,3 +26,7 @@ permissions:
         default: op
     gppskyblock.leaveisland:
         default: true
+    gppskyblock.delete:
+        default: true
+    gppskyblock.delete.any:
+        default: op

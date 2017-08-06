@@ -134,4 +134,12 @@ public class Island {
 	public void setBlockBiome(Biome biome, int blockX, int blockZ) {
 		this.getClaim().getWorld().setBiome(blockX, blockZ, biome);
 	}
+	
+	void deleteRegionFile() {
+		int x = this.getSpawn().getBlockX() >> 9, z = this.getSpawn().getBlockZ() >> 9;
+		File regionFile = new File(this.getSpawn().getWorld().getWorldFolder(), "region" + File.separator + "r."+x+"."+z+".mca");
+		if (!regionFile.delete()) {
+			regionFile.deleteOnExit();
+		}
+	}
 }

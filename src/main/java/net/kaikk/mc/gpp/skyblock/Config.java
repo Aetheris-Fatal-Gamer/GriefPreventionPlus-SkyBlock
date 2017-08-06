@@ -12,10 +12,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Config {
 	public String dbHostname, dbUsername, dbPassword, dbDatabase, worldName, schematic;
-	public int nextRegionX = 1, nextRegionZ = 1, radius, yLevel, tpCountdown;
-	public boolean autoSpawn;
+	public int nextRegion, radius, yLevel, tpCountdown;
+	public boolean autoSpawn, deleteRegion;
 	public Biome defaultBiome;
 	public List<Biome> allowedBiomes = new ArrayList<Biome>();
+	
 	JavaPlugin instance;
 	
 	Config(JavaPlugin instance) {
@@ -57,6 +58,7 @@ public class Config {
 		this.dbDatabase=instance.getConfig().getString("MySQL.Database");
 		
 		this.autoSpawn=instance.getConfig().getBoolean("NewbiesAutoSpawn");
+		this.deleteRegion=instance.getConfig().getBoolean("DeleteRegion", true);
 		
 		allowedBiomes.clear();
 		for (String biomeString : instance.getConfig().getStringList("AllowedBiomes")) {
@@ -70,27 +72,19 @@ public class Config {
 		
 		this.tpCountdown=instance.getConfig().getInt("TPCountdown", 5);
 		
-		// Messages
-		/*saveResource("messages.yml");
-		FileConfiguration messages = YamlConfiguration.loadConfiguration(new File(instance.getDataFolder(), "messages.yml"));
-		
-		if (messages==null) {
-			instance.getLogger().severe("There was an error while loading messages.yml!");
-		} else {
-			Messages.messages.clear();
-			for (String key : messages.getKeys(false)) {
-				Messages.messages.put(key, ChatColor.translateAlternateColorCodes('&', messages.getString(key)));
-			}
-		}*/
-		
 		// Data
-		saveResource("data.yml");
 		FileConfiguration data = YamlConfiguration.loadConfiguration(new File(instance.getDataFolder(), "data.yml"));
 		if (data==null) {
 			instance.getLogger().severe("There was an error while loading data.yml!");
 		} else {
-			this.nextRegionX=data.getInt("NextRegion.X", 1);
-			this.nextRegionZ=data.getInt("NextRegion.Z", 1);
+			int nextRegionX=data.getInt("NextRegion.X", -1);
+			if (nextRegionX != -1) {
+				int nextRegionZ=data.getInt("NextRegion.Z", -1);
+				this.nextRegion = nextRegionCalc(nextRegionX, nextRegionZ) + 1;
+				this.saveData();
+			} else {
+				this.nextRegion=data.getInt("NextRegion", 0);
+			}
 		}
 	}
 	
@@ -100,8 +94,7 @@ public class Config {
 		if (data==null) {
 			instance.getLogger().severe("There was an error while saving data.yml!");
 		} else {
-			data.set("NextRegion.X", this.nextRegionX);
-			data.set("NextRegion.Z", this.nextRegionZ);
+			data.set("NextRegion", this.nextRegion);
 			try {
 				data.save(file);
 			} catch (IOException e) {
@@ -114,5 +107,17 @@ public class Config {
 		if (!new File(instance.getDataFolder(), name).exists()) {
 			instance.saveResource(name, false);
 		}
+	}
+	
+	public static int[] nextRegionCalc(int nextRegion) {
+		return new int[] { 1 + ((nextRegion * 3) % 1350), 1 + (((nextRegion * 3) / 1350) * 3) };
+	}
+
+	public static int nextRegionCalc(int x, int z) {
+		return ((x - 1) / 3) + (((z - 1) * 1350) / 9);
+	}
+	
+	public int[] nextRegion() {
+		return nextRegionCalc(this.nextRegion);
 	}
 }

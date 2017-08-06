@@ -77,17 +77,13 @@ class DataStore {
 	}
 	
 	public Island createIsland(UUID uuid) throws Exception {
-		int x, z;
-		if (instance.config().nextRegionX>58500) {
-			x = 1;
-			z = instance.config().nextRegionZ+3;
-		} else {
-			x = instance.config().nextRegionX+3;
-			z = instance.config().nextRegionZ;
+		if (instance.config().nextRegion > 1822500) {
+			throw new Exception("Max amount of islands reached.");
 		}
+		int[] xz = instance.config().nextRegion();
 		
-		int bx = x << 9;
-		int bz = z << 9;
+		int bx = xz[0] << 9;
+		int bz = xz[1] << 9;
 		
 		World world = Bukkit.getWorld(instance.config().worldName);
 		PlayerData playerData = GriefPreventionPlus.getInstance().getDataStore().getPlayerData(uuid);
@@ -95,11 +91,12 @@ class DataStore {
 		ClaimResult result = GriefPreventionPlus.getInstance().getDataStore().newClaim(world.getUID(), bx+255-instance.config().radius, bz+255-instance.config().radius, bx+255+instance.config().radius, bz+255+instance.config().radius, uuid, null, null, null);
 		GriefPreventionPlus.getInstance().getDataStore().savePlayerData(uuid, playerData);
 		if (result.getResult()!=Result.SUCCESS) {
+			playerData.setBonusClaimBlocks(playerData.getBonusClaimBlocks()-(((instance.config().radius*2)+1)*2));
+			GriefPreventionPlus.getInstance().getDataStore().savePlayerData(uuid, playerData);
 			throw new Exception(result.getReason());
 		}
 		
-		instance.config().nextRegionX = x;
-		instance.config().nextRegionZ = z;
+		instance.config().nextRegion++;
 		instance.config().saveData();
 		
 		Island island = new Island(uuid, result.getClaim());

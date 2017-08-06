@@ -12,17 +12,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
-import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
-import com.sk89q.worldedit.bukkit.BukkitWorld;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.session.ClipboardHolder;
-import com.sk89q.worldedit.world.World;
 import com.sk89q.worldedit.world.registry.LegacyWorldData;
 import com.sk89q.worldedit.world.registry.WorldData;
 
@@ -94,7 +90,7 @@ public class ResetIslandTask extends BukkitRunnable {
 					fis.close();
 		
 					ClipboardHolder clipboardHolder = new ClipboardHolder(clipboard, worldData);
-					EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession((World) new BukkitWorld(island.getClaim().getWorld()), 1000000);
+					EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(Utils.fromBukkitToWorldEditWorld(island.getClaim().getWorld()), 1000000);
 		
 					try {
 						island.setSpawn(island.getCenter());
@@ -103,9 +99,8 @@ public class ResetIslandTask extends BukkitRunnable {
 					}
 		
 					island.getSpawn().getChunk().load();
-		
-					Vector vector = BukkitUtil.toVector(island.getSpawn());
-					Operation operation = clipboardHolder.createPaste(editSession, LegacyWorldData.getInstance()).to(vector).ignoreAirBlocks(true).build();
+					
+					Operation operation = clipboardHolder.createPaste(editSession, LegacyWorldData.getInstance()).to(Utils.toVector(island.getSpawn())).ignoreAirBlocks(true).build();
 					Operations.completeLegacy(operation);
 					
 					Bukkit.getLogger().info(ownerName+" island schematic load complete.");
@@ -171,4 +166,5 @@ public class ResetIslandTask extends BukkitRunnable {
 	enum Stage {
 		REGEN, SCHEMATIC, UNLOADCHUNKS, COMPLETED;
 	}
+	
 }
