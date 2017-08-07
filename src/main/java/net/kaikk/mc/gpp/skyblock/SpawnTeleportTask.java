@@ -20,7 +20,7 @@ public class SpawnTeleportTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		if (!island.getSpawn().getChunk().load()) {
+		if (island.getSpawn().getChunk() == null || !island.getSpawn().getChunk().load()) {
 			return;
 		}
 		if (!player.isOnline()) {
