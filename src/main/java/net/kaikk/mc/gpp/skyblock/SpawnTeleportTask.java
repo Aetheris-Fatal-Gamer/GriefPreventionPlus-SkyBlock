@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class SpawnTeleportTask extends BukkitRunnable {
-	private int countdown;
+	private int countdown, errors;
 	private Player player;
 	private Island island;
 	private Location location;
@@ -20,13 +20,26 @@ public class SpawnTeleportTask extends BukkitRunnable {
 
 	@Override
 	public void run() {
-		if (island.getSpawn().getChunk() == null || !island.getSpawn().getChunk().load()) {
-			return;
-		}
 		if (!player.isOnline()) {
 			this.cancel();
 			return;
 		}
+		
+		try {
+			if (!island.getSpawn().getChunk().load()) {
+				return;
+			}
+		} catch (Exception e1) {
+			return;
+		} finally {
+			errors++;
+			if (errors > 50) {
+				player.sendMessage(ChatColor.RED+"Teleport cancelled");
+				this.cancel();
+				return;
+			}
+		}
+		
 		try {
 			if (this.location.distanceSquared(location)>0) {
 				player.sendMessage(ChatColor.RED+"Teleport cancelled");
@@ -51,7 +64,7 @@ public class SpawnTeleportTask extends BukkitRunnable {
 		countdown--;
 	}
 	
-	public static void TeleportTask(Player player, Island island, int countdown) {
+	public static void teleportTask(Player player, Island island, int countdown) {
 		new SpawnTeleportTask(player, island, countdown*4).runTaskTimer(GPPSkyBlock.getInstance(), 0L, 5L);
 	}
 }

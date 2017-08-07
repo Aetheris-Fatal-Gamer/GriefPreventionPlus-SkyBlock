@@ -145,7 +145,7 @@ public class ResetIslandTask extends BukkitRunnable {
 					island.getPlayer().sendMessage(ChatColor.GREEN+"Island generation complete. You will be teleported in "+GPPSkyBlock.getInstance().config().tpCountdown+" seconds. Do not move.");
 					island.getPlayer().sendMessage(ChatColor.RED+"WARNING: Be sure to use a full block for your island spawn. Do not use slabs!");
 					
-					SpawnTeleportTask.TeleportTask(island.getPlayer(), island, GPPSkyBlock.getInstance().config().tpCountdown);
+					SpawnTeleportTask.teleportTask(island.getPlayer(), island, GPPSkyBlock.getInstance().config().tpCountdown);
 				}
 		
 				Bukkit.getLogger().info(ownerName+" island reset completed.");

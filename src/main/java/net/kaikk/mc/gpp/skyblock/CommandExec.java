@@ -252,7 +252,7 @@ public class CommandExec implements CommandExecutor {
 		}
 
 		sender.sendMessage(ChatColor.GREEN+"You'll be teleported in "+instance.config().tpCountdown+" seconds. Do not move.");
-		SpawnTeleportTask.TeleportTask(player, island, instance.config().tpCountdown);
+		SpawnTeleportTask.teleportTask(player, island, instance.config().tpCountdown);
 
 		return true;
 	}
