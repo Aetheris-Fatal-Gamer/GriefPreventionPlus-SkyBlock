@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import net.kaikk.mc.gpp.Claim;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
@@ -38,25 +39,36 @@ class EventListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	void onPlayerJoin(PlayerJoinEvent event) {
 		final Player player = event.getPlayer();
-		if (!player.isOnline() || player.getName() == null) {
+		if (player == null || !player.isOnline() || player.getName() == null) {
 			return;
 		}
 		
-		if (instance.config().autoSpawn && !player.hasPlayedBefore()) {
-			Island island = instance.dataStore().getIsland(player.getUniqueId());
-			if (island==null) {
-				try {
-					island = instance.dataStore().createIsland(player.getUniqueId());
-				} catch (Exception e) {
-					e.printStackTrace();
+		new BukkitRunnable() {
+			@Override
+			public void run() {
+				if (!player.isOnline()) {
 					return;
 				}
+				
+				if (instance.config().autoSpawn && !player.hasPlayedBefore()) {
+					Island island = instance.dataStore().getIsland(player.getUniqueId());
+					if (island==null) {
+						try {
+							island = instance.dataStore().createIsland(player.getUniqueId());
+						} catch (Exception e) {
+							e.printStackTrace();
+							return;
+						}
+					}
+				}
+				
+				
+				if (isIslandWorld(player.getLocation().getWorld()) && GriefPreventionPlus.getInstance().getDataStore().getClaimAt(player.getLocation()) == null) {
+					player.teleport(GPPSkyBlock.getInstance().getSpawn());
+				}
+				
 			}
-		}
-		
-		if (isIslandWorld(player.getLocation().getWorld()) && GriefPreventionPlus.getInstance().getDataStore().getClaimAt(player.getLocation()) == null) {
-			player.teleport(GPPSkyBlock.getInstance().getSpawn());
-		}
+		}.runTaskLater(instance, 20L);
 	}
 	
 	@EventHandler(ignoreCancelled=true) 
