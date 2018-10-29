@@ -1,14 +1,14 @@
 package net.kaikk.mc.gpp.skyblock;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Config {
 	public String dbHostname, dbUsername, dbPassword, dbDatabase, worldName, schematic;
@@ -16,14 +16,14 @@ public class Config {
 	public boolean autoSpawn, deleteRegion;
 	public Biome defaultBiome;
 	public List<Biome> allowedBiomes = new ArrayList<Biome>();
-	
+
 	JavaPlugin instance;
-	
+
 	Config(JavaPlugin instance) {
 		this.instance = instance;
 		instance.saveDefaultConfig();
 		instance.reloadConfig();
-		
+
 		this.worldName=instance.getConfig().getString("WorldName");
 		this.schematic=instance.getConfig().getString("Schematic");
 		saveResource("default.schematic");
@@ -31,19 +31,19 @@ public class Config {
 		if (!schematicFile.exists()) {
 			instance.getLogger().severe("Island schematic file \""+schematic+".schematic\" doesn't exist!");
 		}
-		
+
 		this.radius=instance.getConfig().getInt("Radius");
 		if (this.radius>255) {
 			this.radius=255;
 		} else if (this.radius<10) {
 			this.radius=10;
 		}
-		
+
 		this.yLevel=instance.getConfig().getInt("YLevel");
 		if (this.yLevel<1 || this.yLevel>255) {
 			this.yLevel=64;
 		}
-		
+
 		String biomeName = instance.getConfig().getString("DefaultBiome", "UNCHANGED");
 		if (!biomeName.equals("UNCHANGED")) {
 			defaultBiome = Biome.valueOf(biomeName);
@@ -51,15 +51,15 @@ public class Config {
 				instance.getLogger().warning("Unknown default biome \""+biomeName+"\"");
 			}
 		}
-		
+
 		this.dbHostname=instance.getConfig().getString("MySQL.Hostname");
 		this.dbUsername=instance.getConfig().getString("MySQL.Username");
 		this.dbPassword=instance.getConfig().getString("MySQL.Password");
 		this.dbDatabase=instance.getConfig().getString("MySQL.Database");
-		
+
 		this.autoSpawn=instance.getConfig().getBoolean("NewbiesAutoSpawn");
 		this.deleteRegion=instance.getConfig().getBoolean("DeleteRegion", true);
-		
+
 		allowedBiomes.clear();
 		for (String biomeString : instance.getConfig().getStringList("AllowedBiomes")) {
 			Biome biome = Biome.valueOf(biomeString);
@@ -69,9 +69,9 @@ public class Config {
 				allowedBiomes.add(biome);
 			}
 		}
-		
+
 		this.tpCountdown=instance.getConfig().getInt("TPCountdown", 5);
-		
+
 		// Data
 		FileConfiguration data = YamlConfiguration.loadConfiguration(new File(instance.getDataFolder(), "data.yml"));
 		if (data==null) {
@@ -87,7 +87,7 @@ public class Config {
 			}
 		}
 	}
-	
+
 	void saveData() {
 		File file = new File(instance.getDataFolder(), "data.yml");
 		FileConfiguration data = YamlConfiguration.loadConfiguration(file);
@@ -102,13 +102,13 @@ public class Config {
 			}
 		}
 	}
-	
+
 	void saveResource(String name) {
 		if (!new File(instance.getDataFolder(), name).exists()) {
 			instance.saveResource(name, false);
 		}
 	}
-	
+
 	public static int[] nextRegionCalc(int nextRegion) {
 		return new int[] { 1 + ((nextRegion * 3) % 1350), 1 + (((nextRegion * 3) / 1350) * 3) };
 	}
@@ -116,7 +116,7 @@ public class Config {
 	public static int nextRegionCalc(int x, int z) {
 		return ((x - 1) / 3) + (((z - 1) * 1350) / 9);
 	}
-	
+
 	public int[] nextRegion() {
 		return nextRegionCalc(this.nextRegion);
 	}

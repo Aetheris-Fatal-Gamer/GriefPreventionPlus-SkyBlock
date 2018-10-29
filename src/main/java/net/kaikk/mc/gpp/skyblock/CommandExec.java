@@ -1,10 +1,10 @@
 package net.kaikk.mc.gpp.skyblock;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
+import net.kaikk.mc.gpp.Claim;
+import net.kaikk.mc.gpp.ClaimPermission;
+import net.kaikk.mc.gpp.GriefPreventionPlus;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent.Reason;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -14,11 +14,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import net.kaikk.mc.gpp.Claim;
-import net.kaikk.mc.gpp.ClaimPermission;
-import net.kaikk.mc.gpp.GriefPreventionPlus;
-import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
-import net.kaikk.mc.gpp.events.ClaimDeleteEvent.Reason;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class CommandExec implements CommandExecutor {
 	private GPPSkyBlock instance;
@@ -30,40 +29,52 @@ public class CommandExec implements CommandExecutor {
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (cmd.getName().equals(instance.getName())) {
+
+
+
 			if (args.length==0) {
-				sender.sendMessage(help(label));
-				return false;
+				if (sender instanceof Player){
+					if (BSPHook.isEnabled()){
+						Player player = (Player) sender;
+						BSPHook.openShop(player,"islands");
+					}else {
+						sender.sendMessage(help(label));
+					}
+					return true;
+				}
 			}
 
+
 			switch(args[0].toLowerCase()) {
-			case "help":
-				sender.sendMessage(help(label));
-				return true;
-			case "spawn":
-			case "home":
-			case "tp":
-				return spawn(sender, label, args);
-			case "reset":
-			case "restart":
-				return reset(sender, label, args);
-			case "trust":
-			case "invite":
-				return invite(sender, label, args);
-			case "setspawn":
-			case "sethome":
-				return setSpawn(sender, label, args);
-			case "setbiome":
-				return setBiome(sender, label, args);
-			case "biomelist":
-				return biomeList(sender);
-			case "setradius":
-				return setRadius(sender, label, args);
-			case "delete":
-				return delete(sender, label, args);
-			case "private":
-				return privatec(sender, label, args);
-			case "public":
-				return publicc(sender, label, args);
+				case "help":
+					sender.sendMessage(help(label));
+					return true;
+				case "spawn":
+				case "home":
+				case "tp":
+					return spawn(sender, label, args);
+				case "reset":
+				case "restart":
+					return reset(sender, label, args);
+				case "trust":
+				case "invite":
+					return invite(sender, label, args);
+				case "setspawn":
+				case "sethome":
+				case "redefinespawn":
+					return setSpawn(sender, label, args);
+				case "setbiome":
+					return setBiome(sender, label, args);
+				case "biomelist":
+					return biomeList(sender);
+				case "setradius":
+					return setRadius(sender, label, args);
+				case "delete":
+					return delete(sender, label, args);
+				case "private":
+					return privatec(sender, label, args);
+				case "public":
+					return publicc(sender, label, args);
 			}
 
 			sender.sendMessage(ChatColor.RED+"Wrong parameter.");
@@ -94,7 +105,8 @@ public class CommandExec implements CommandExecutor {
 		Claim claim = island.getClaim();
 		claim.dropPermission(player.getUniqueId());
 		claim.setPermission(GriefPreventionPlus.UUID0, ClaimPermission.ENTRY);
-		sender.sendMessage(ChatColor.GOLD + "Your island can be now visited by all players.");
+		sender.sendMessage("§eSua ilha está §a§lPublica!");
+		sender.sendMessage("§7Ou seja, qualquer um pode entrar nela!");
 		return true;
 	}
 
@@ -119,7 +131,8 @@ public class CommandExec implements CommandExecutor {
 		Claim claim = island.getClaim();
 		claim.setPermission(player.getUniqueId(), ClaimPermission.ENTRY);
 		claim.dropPermission(GriefPreventionPlus.UUID0);
-		sender.sendMessage(ChatColor.GOLD + "Your island is now private and can be visited only by the players you specify with /entrytrust [player]");
+		sender.sendMessage("§eSua ilha está §9§lPrivada!");
+		sender.sendMessage("§7Ou seja, apenas jogadores com §n/entrytrust §7podem entrar nela!");
 		return true;
 	}
 
@@ -178,6 +191,8 @@ public class CommandExec implements CommandExecutor {
 			return false;
 		}
 
+		island.deleteRegionFile();
+
 		ClaimDeleteEvent event = new ClaimDeleteEvent(island.getClaim(), player, Reason.DELETE);
 		Bukkit.getPluginManager().callEvent(event);
 		if (event.isCancelled()) {
@@ -191,16 +206,16 @@ public class CommandExec implements CommandExecutor {
 
 	private String help(String label) {
 		return ChatColor.GOLD + "" + ChatColor.BOLD + "=== GriefPreventionPlus-SkyBlock ===\n" +
-				ChatColor.AQUA + "/" + label + " help - shows this help\n" +
-				ChatColor.AQUA + "/" + label + " reset - resets your island\n" +
-				ChatColor.AQUA + "/" + label + " spawn [PlayerName] - teleports to your island or the specified player's island\n" +
-				ChatColor.AQUA + "/" + label + " setspawn - sets your island's spawn at your current location\n" +
-				ChatColor.AQUA + "/" + label + " setbiome (island|chunk|block) [biome] - sets the biome of your island\n" +
-				ChatColor.AQUA + "/" + label + " biomelist - list allowed biomes that can be used with setbiome\n" +
-				ChatColor.AQUA + "/" + label + " invite [PlayerName] - Adds a player to your island and tells them how to get to your island.\n" +
+				ChatColor.AQUA + "/" + label + " help - mostra essa mensagem de ajuda!\n" +
+				ChatColor.AQUA + "/" + label + " reset - reseta a sua ilha!\n" +
+				ChatColor.AQUA + "/" + label + " spawn [PlayerName] - teleporta para a sua ilha, ou para a ilha de alguem!\n" +
+				ChatColor.AQUA + "/" + label + " setspawn - redefine o spawn da sua ilha para a sua posição!\n" +
+				ChatColor.AQUA + "/" + label + " setbiome (island|chunk|block) [biome] - saltera o bioma da ilha!\n" +
+				ChatColor.AQUA + "/" + label + " biomelist - lista os biomas possiveis do comando setbiome\n" +
+				ChatColor.AQUA + "/" + label + " invite [PlayerName] - Adiciona um amigo para a sua ilha!\n" +
 				ChatColor.AQUA + "/" + label + " delete [PlayerName] - Delete the specified island. You must specify your own name.\n" +
-				ChatColor.AQUA + "/" + label + " private/public - Allow or deny all players to visit your island.\n" +
-				ChatColor.RED + "You can use almost all GriefPreventionPlus commands on your island, like /trust [PlayerName].\n" +
+				ChatColor.AQUA + "/" + label + " private/public - Torna sua ilha publica para qualquer 1, ou a deixa privada!!\n" +
+				ChatColor.RED + "Você tambem pode usar quase todos os comandos do GriefPrevention, como por exemplo /trust [PlayerName].\n" +
 				(Bukkit.getPluginManager().isPluginEnabled("GPPCities") ? ChatColor.RED + "GriefPreventionPlus-Cities is supported. Use '/city help' for more info." : "");
 	}
 
@@ -229,7 +244,7 @@ public class CommandExec implements CommandExecutor {
 				try {
 					island = this.instance.dataStore().createIsland(player.getUniqueId());
 				} catch (Exception e) {
-					sender.sendMessage(ChatColor.RED+"An error occurred while creating the island: "+e.getMessage());
+					sender.sendMessage(ChatColor.RED+"Um erro ocorreu ao gerar sua ilha: "+e.getMessage());
 					return false;
 				}
 				return true;
@@ -237,22 +252,28 @@ public class CommandExec implements CommandExecutor {
 		}
 
 		if (island==null) {
-			sender.sendMessage(ChatColor.RED+"The specified player doesn't have an island on this server.");
+			sender.sendMessage(ChatColor.RED+"O jogador especificado não possui uma ilha nesse servidor!");
 			return false;
 		}
 
 		if (island.getClaim().canEnter(player) != null) {
-			sender.sendMessage(ChatColor.RED+"You don't have permission to teleport to this island.");
+			sender.sendMessage(ChatColor.RED+"Você não tem permissão para entrar nesse terreno!");
 			return false;
 		}
 
 		if (!island.ready) {
-			sender.sendMessage(ChatColor.RED+"There's a pending operation on this island.");
+			sender.sendMessage(ChatColor.RED+"Existe alguma operação pendente nessa ilha!");
 			return false;
 		}
 
-		sender.sendMessage(ChatColor.GREEN+"You'll be teleported in "+instance.config().tpCountdown+" seconds. Do not move.");
-		SpawnTeleportTask.teleportTask(player, island, instance.config().tpCountdown);
+		if (player.hasPermission("gppskyblock.nowarpup")){
+			sender.sendMessage(ChatColor.GREEN+"Você foi teleportado para a ilha!");
+			SpawnTeleportTask.teleportTask(player, island, 0);
+		}else {
+			sender.sendMessage(ChatColor.GREEN+"Você será teleportado em "+instance.config().tpCountdown+" segundos!");
+			SpawnTeleportTask.teleportTask(player, island, instance.config().tpCountdown);
+		}
+
 
 		return true;
 	}
@@ -272,18 +293,18 @@ public class CommandExec implements CommandExecutor {
 
 		Island island = this.instance.dataStore().getIsland(player.getUniqueId());
 		if (island==null) {
-			sender.sendMessage(ChatColor.RED+"You don't have an island yet. Use the \"/"+label+" spawn\" command");
+			sender.sendMessage(ChatColor.RED+"Você ainda não tem uma ilha. Use o comando \"/"+label+" spawn\"");
 			return false;
 		}
 
 		if (!island.ready) {
-			sender.sendMessage(ChatColor.RED+"There's a pending operation on this island.");
+			sender.sendMessage(ChatColor.RED+"Existe alguma operação pendente nessa ilha!");
 			return false;
 		}
 
 		String conf = this.confirmations.remove(player.getUniqueId());
 		if (conf==null || !conf.equals("reset")) {
-			sender.sendMessage(ChatColor.RED+"WARNING: your entire island will be reset!\nIf you're aware about this, type \"/"+label+" reset\" again.");
+			sender.sendMessage("§c§lCUIDADO: §csua ilha inteira será APAGADA!\n§cSe você tem certeza disso, use \"/"+label+" reset\" novamente!");
 			this.confirmations.put(player.getUniqueId(), "reset");
 			return false;
 		}
@@ -306,30 +327,30 @@ public class CommandExec implements CommandExecutor {
 		Player player = (Player) sender;
 		String conf = this.confirmations.remove(player.getUniqueId());
 		if (conf==null || !conf.equals("spawn")) {
-			sender.sendMessage(ChatColor.RED+"WARNING: Be sure to use a full block for your island spawn. Do not use slabs!");
+			sender.sendMessage(ChatColor.RED+"ATENÇAO: Certifique-se de usar blocos inteiros para o spawn de sua ilha! Não use escadas ou lajes!");
 			this.confirmations.put(player.getUniqueId(), "spawn");
 			return false;
 		}
 
 		Island island = this.instance.dataStore().getIsland(player.getUniqueId());
 		if (island==null) {
-			sender.sendMessage(ChatColor.RED+"You don't have an island yet. Use the \"/"+label+" spawn\" command");
+			sender.sendMessage(ChatColor.RED+"Você ainda não tem uma ilha. Use o comando \"/"+label+" spawn\"");
 			return false;
 		}
 
 		if (!island.getClaim().contains(player.getLocation(), true, false)) {
-			sender.sendMessage(ChatColor.RED+"You aren't inside your island");
+			sender.sendMessage(ChatColor.RED+"Você precisa estar dentro da sa ilha!");
 			return false;
 		}
 
 		if (!island.ready) {
-			sender.sendMessage(ChatColor.RED+"There's a pending operation on this island.");
+			sender.sendMessage(ChatColor.RED+"Existe alguma operação pendente nessa ilha!");
 			return false;
 		}
 
 		try {
 			island.setSpawn(player.getLocation().add(0, 2, 0));
-			sender.sendMessage(ChatColor.GREEN+"Island spawn point set");
+			sender.sendMessage(ChatColor.GREEN+"Spawn da ilha definido com sucesso!");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			sender.sendMessage(ChatColor.RED+"An error occurred while creating the island: data store issue.");
@@ -365,7 +386,7 @@ public class CommandExec implements CommandExecutor {
 
 		Island island = this.instance.dataStore().getIsland(player.getUniqueId());
 		if (island==null) {
-			sender.sendMessage(ChatColor.RED+"You don't have an island yet. Use the \"/"+label+" spawn\" command");
+			sender.sendMessage(ChatColor.RED+"Você ainda não tem uma ilha. Use o comando \"/"+label+" spawn\"");
 			return false;
 		}
 
@@ -375,37 +396,36 @@ public class CommandExec implements CommandExecutor {
 		}
 
 		switch(args[1].toLowerCase()) {
-		case "island": {
-			island.setIslandBiome(biome);
-			break;
-		}
-		case "chunk": {
-			if (!island.getClaim().contains(player.getLocation(), true, false)) {
-				sender.sendMessage(ChatColor.RED+"You aren't inside your island.");
-				return false;
+			case "island": {
+				island.setIslandBiome(biome);
+				break;
 			}
+			case "chunk": {
+				if (!island.getClaim().contains(player.getLocation(), true, false)) {
+					sender.sendMessage(ChatColor.RED+"You aren't inside your island.");
+					return false;
+				}
 
-			island.setChunkBiome(biome, player.getLocation().getBlockX()>>4, player.getLocation().getBlockZ()>>4);
-			break;
-		}
-		case "block": {
-			if (!island.getClaim().contains(player.getLocation(), true, false)) {
-				sender.sendMessage(ChatColor.RED+"You aren't inside your island.");
-				return false;
+				island.setChunkBiome(biome, player.getLocation().getBlockX()>>4, player.getLocation().getBlockZ()>>4);
+				break;
 			}
+			case "block": {
+				if (!island.getClaim().contains(player.getLocation(), true, false)) {
+					sender.sendMessage(ChatColor.RED+"Você não esta dentro da sua ilha!");
+					return false;
+				}
 
-			island.setBlockBiome(biome, player.getLocation().getBlockX(), player.getLocation().getBlockZ());
-			break;
-		}
-		default:
-			sender.sendMessage("Invalid parameter "+args[1]);
-			return false;
+				island.setBlockBiome(biome, player.getLocation().getBlockX(), player.getLocation().getBlockZ());
+				break;
+			}
+			default:
+				sender.sendMessage("Invalid parameter "+args[1]);
+				return false;
 		}
 
-		sender.sendMessage(ChatColor.GREEN+"Biome set. You may need to relog to see changes.");
+		sender.sendMessage(ChatColor.GREEN+"Bioma alterado! Você vai precisar deslogar e logar para ver a diferença!");
 		return true;
 	}
-
 
 	private boolean setRadius(CommandSender sender, String label, String[] args) {
 		if (!sender.hasPermission("gppskyblock.setradius")) {
@@ -455,6 +475,11 @@ public class CommandExec implements CommandExecutor {
 			sb.append(ChatColor.RED+"none");
 		} else {
 			for (Biome biome : instance.config().allowedBiomes) {
+
+				if(!sender.hasPermission("gppskyblock.setbiome."+biome.toString())) {
+					continue;
+				}
+
 				sb.append(Utils.fromSnakeToCamelCase(biome.toString()));
 				sb.append(", ");
 			}

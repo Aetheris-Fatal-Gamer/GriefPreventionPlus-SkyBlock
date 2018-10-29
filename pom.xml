@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.kaikk.mc</groupId>
 	<artifactId>GPPSkyBlock</artifactId>
-	<version>1.4.3</version>
+	<version>1.4.4h</version>
 	<licenses>
 		<license>
 			<name>GPL v3 License</name>
@@ -51,13 +51,13 @@
 			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
 		</repository>
 		<repository>
-            <id>sk89q-repo-we</id>
-            <url>http://maven.sk89q.com/artifactory/repo/</url>
-        </repository>
-        <repository>
-           <id>net.kaikk.mc</id>
-           <url>http://kaikk.net/mc/repo/</url>
-       </repository>
+			<id>sk89q-repo-we</id>
+			<url>http://maven.sk89q.com/artifactory/repo/</url>
+		</repository>
+		<repository>
+			<id>net.kaikk.mc</id>
+			<url>http://kaikk.net/mc/repo/</url>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -68,16 +68,30 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-            <groupId>com.sk89q.worldedit</groupId>
-            <artifactId>worldedit-core</artifactId>
-            <version>6.1.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-           <groupId>net.kaikk.mc</groupId>
-           <artifactId>GriefPreventionPlus</artifactId>
-           <version>12.17</version>
-           <type>jar</type>
-           <scope>provided</scope>
+			<groupId>com.sk89q.worldedit</groupId>
+			<artifactId>worldedit-core</artifactId>
+			<version>6.1.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>net.kaikk.mc</groupId>
+			<artifactId>GriefPreventionPlus</artifactId>
+			<version>12.17</version>
+			<type>jar</type>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sample</groupId>
+			<artifactId>PlaceholderAPI</artifactId>
+			<version>N.N</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/PlaceholderAPI.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.sample</groupId>
+			<artifactId>BossShopPro</artifactId>
+			<version>N.N</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/BossShopPro-v1.9.8.jar</systemPath>
 		</dependency>
 	</dependencies>
 	<properties>

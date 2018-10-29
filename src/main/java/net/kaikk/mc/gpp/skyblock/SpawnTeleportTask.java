@@ -10,7 +10,7 @@ public class SpawnTeleportTask extends BukkitRunnable {
 	private Player player;
 	private Island island;
 	private Location location;
-	
+
 	private SpawnTeleportTask(Player player, Island island, int countdown) {
 		this.player = player;
 		this.island = island;
@@ -24,7 +24,7 @@ public class SpawnTeleportTask extends BukkitRunnable {
 			this.cancel();
 			return;
 		}
-		
+
 		try {
 			if (!island.getSpawn().getChunk().load()) {
 				return;
@@ -39,7 +39,7 @@ public class SpawnTeleportTask extends BukkitRunnable {
 				return;
 			}
 		}
-		
+
 		try {
 			if (this.location.distanceSquared(location)>0) {
 				player.sendMessage(ChatColor.RED+"Teleport cancelled");
@@ -51,19 +51,19 @@ public class SpawnTeleportTask extends BukkitRunnable {
 			this.cancel();
 			return;
 		}
-		
+
 		if (countdown<=0) {
 			player.teleport(island.getSpawn());
 			if (countdown<-4) {
 				this.cancel();
 				return;
 			}
-			
+
 		}
-		
+
 		countdown--;
 	}
-	
+
 	public static void teleportTask(Player player, Island island, int countdown) {
 		new SpawnTeleportTask(player, island, countdown*4).runTaskTimer(GPPSkyBlock.getInstance(), 0L, 5L);
 	}
