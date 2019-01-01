@@ -1,5 +1,6 @@
-package net.kaikk.mc.gpp.skyblock;
+package net.kaikk.mc.gpp.skyblock.bossshop;
 
+import net.kaikk.mc.gpp.skyblock.placeholders.PlaceHolderIntegration;
 import org.black_ixx.bossshop.events.BSDisplayItemEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

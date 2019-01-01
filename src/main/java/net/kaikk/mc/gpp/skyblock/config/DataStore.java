@@ -1,39 +1,51 @@
-package net.kaikk.mc.gpp.skyblock;
+package net.kaikk.mc.gpp.skyblock.config;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
+import net.kaikk.mc.gpp.skyblock.Island;
+import net.kaikk.mc.gpp.skyblock.Utils;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 
 import net.kaikk.mc.gpp.Claim;
 import net.kaikk.mc.gpp.ClaimResult;
 import net.kaikk.mc.gpp.ClaimResult.Result;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
 import net.kaikk.mc.gpp.PlayerData;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
 
-import java.sql.*;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-class DataStore {
+public class DataStore {
 	private GPPSkyBlock instance;
 	private String dbUrl, username, password;
 	private Connection db = null;
-	private Map<UUID,Island> islands = new HashMap<UUID,Island>();
+	private Map<UUID, Island> islands = new HashMap<UUID,Island>();
 
 	public int getTotalOfIslands(){
 		return this.islands.size();
 	}
 
-	ExecutorService executor = Executors.newSingleThreadExecutor();
+	private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-	DataStore(GPPSkyBlock instance) throws Exception {
+	public DataStore(GPPSkyBlock instance) throws Exception {
 		this.instance=instance;
 		this.dbUrl = "jdbc:mysql://"+instance.config().dbHostname+"/"+instance.config().dbDatabase;
 		this.username = instance.config().dbUsername;
 		this.password = instance.config().dbPassword;
-
+		
 		try {
 			//load the java driver for mySQL
 			Class.forName("com.mysql.jdbc.Driver");
@@ -41,14 +53,14 @@ class DataStore {
 			this.instance.getLogger().severe("Unable to load Java's mySQL database driver.  Check to make sure you've installed it properly.");
 			throw e;
 		}
-
+		
 		try {
 			this.dbCheck();
 		} catch(Exception e) {
 			this.instance.getLogger().severe("Unable to connect to database.  Check your config file settings. Details: \n"+e.getMessage());
 			throw e;
 		}
-
+		
 		Statement statement = db.createStatement();
 
 		try {
@@ -58,7 +70,7 @@ class DataStore {
 			this.instance.getLogger().severe("Unable to create the necessary database table. Details: \n"+e.getMessage());
 			throw e;
 		}
-
+		
 		ResultSet rs = this.statement().executeQuery("SELECT * FROM gppskyblock_islands");
 		islands.clear();
 
@@ -70,16 +82,16 @@ class DataStore {
 			}
 		}
 	}
-
+	
 	public Island createIsland(UUID uuid) throws Exception {
 		if (instance.config().nextRegion > 1822500) {
 			throw new Exception("Max amount of islands reached.");
 		}
 		int[] xz = instance.config().nextRegion();
-
+		
 		int bx = xz[0] << 9;
 		int bz = xz[1] << 9;
-
+		
 		World world = Bukkit.getWorld(instance.config().worldName);
 		PlayerData playerData = GriefPreventionPlus.getInstance().getDataStore().getPlayerData(uuid);
 		playerData.setBonusClaimBlocks(playerData.getBonusClaimBlocks()+(((instance.config().radius*2)+1)*2));
@@ -90,10 +102,10 @@ class DataStore {
 			GriefPreventionPlus.getInstance().getDataStore().savePlayerData(uuid, playerData);
 			throw new Exception(result.getReason());
 		}
-
+		
 		instance.config().nextRegion++;
 		instance.config().saveData();
-
+		
 		Island island = new Island(uuid, result.getClaim());
 		try {
 			instance.dataStore().addIsland(island);
@@ -102,9 +114,9 @@ class DataStore {
 			GriefPreventionPlus.getInstance().getDataStore().deleteClaim(result.getClaim());
 			throw new Exception("data store issue.");
 		}
-
+		
 		island.reset();
-
+		
 		return island;
 	}
 
@@ -116,65 +128,65 @@ class DataStore {
 	void asyncUpdate(String... sql) {
 		executor.execute(new DatabaseUpdate(sql));
 	}
-
+	
 	Future<ResultSet> asyncQuery(String sql) {
 		return executor.submit(new DatabaseQuery(sql));
 	}
-
+	
 	Future<ResultSet> asyncUpdateGenKeys(String sql) {
 		return executor.submit(new DatabaseUpdateGenKeys(sql));
 	}
-
+	
 	synchronized void update(String sql) throws SQLException {
 		this.update(this.statement(), sql);
 	}
-
+	
 	synchronized void update(Statement statement, String sql) throws SQLException {
 		statement.executeUpdate(sql);
 	}
-
+	
 	synchronized void update(String... sql) throws SQLException {
 		this.update(this.statement(), sql);
 	}
-
+	
 	synchronized void update(Statement statement, String... sql) throws SQLException {
 		for (String sqlRow : sql) {
 			statement.executeUpdate(sqlRow);
 		}
 	}
-
+	
 	synchronized ResultSet query(String sql) throws SQLException {
 		return this.query(this.statement(), sql);
 	}
-
+	
 	synchronized ResultSet query(Statement statement, String sql) throws SQLException {
 		return statement.executeQuery(sql);
 	}
-
+	
 	synchronized ResultSet updateGenKeys(String sql) throws SQLException {
 		return this.updateGenKeys(this.statement(), sql);
 	}
-
+	
 	synchronized ResultSet updateGenKeys(Statement statement, String sql) throws SQLException {
 		statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
 		return statement.getGeneratedKeys();
 	}
-
+	
 	synchronized Statement statement() throws SQLException {
 		this.dbCheck();
 		return this.db.createStatement();
 	}
-
+	
 	synchronized void dbCheck() throws SQLException {
 		if(this.db == null || this.db.isClosed()) {
 			Properties connectionProps = new Properties();
 			connectionProps.put("user", this.username);
 			connectionProps.put("password", this.password);
-
-			this.db = DriverManager.getConnection(this.dbUrl, connectionProps);
+			
+			this.db = DriverManager.getConnection(this.dbUrl, connectionProps); 
 		}
 	}
-
+	
 	synchronized void dbClose()  {
 		try {
 			if (!this.db.isClosed()) {
@@ -182,31 +194,31 @@ class DataStore {
 				this.db=null;
 			}
 		} catch (SQLException e) {
-
+			
 		}
 	}
-
-	Island getIsland(UUID playerId) {
+	
+	public Island getIsland(UUID playerId) {
 		return this.islands.get(playerId);
 	}
 
-	void addIsland(Island island) throws SQLException {
+    public void addIsland(Island island) throws SQLException {
 		this.statement().executeUpdate("INSERT INTO gppskyblock_islands VALUES("+Utils.UUIDtoHexString(island.getOwnerId())+", "+island.getClaim().getID()+", "+island.getSpawn().getBlockX()+", "+island.getSpawn().getBlockY()+", "+island.getSpawn().getBlockZ()+");");
 		this.islands.put(island.getOwnerId(), island);
 	}
-
-	void removeIsland(Island island) throws SQLException {
+	
+	public void removeIsland(Island island) throws SQLException {
 		this.statement().executeUpdate("DELETE FROM gppskyblock_islands WHERE player = "+Utils.UUIDtoHexString(island.getOwnerId())+" LIMIT 1");
 		this.islands.remove(island.getOwnerId());
 	}
 
-	void updateIsland(Island island) throws SQLException {
+    public void updateIsland(Island island) throws SQLException {
 		this.statement().executeUpdate("UPDATE gppskyblock_islands SET sx = "+island.getSpawn().getBlockX()+", sy = "+island.getSpawn().getBlockY()+", sz = "+island.getSpawn().getBlockZ()+" WHERE player = "+Utils.UUIDtoHexString(island.getOwnerId())+" LIMIT 1");
 	}
-
+	
 	private class DatabaseUpdate implements Runnable {
 		private String[] sql;
-
+		
 		public DatabaseUpdate(String... sql) {
 			this.sql = sql;
 		}
@@ -225,32 +237,32 @@ class DataStore {
 			}
 		}
 	}
-
+	
 	private class DatabaseUpdateGenKeys implements Callable<ResultSet> {
 		private String sql;
-
+		
 		public DatabaseUpdateGenKeys(String sql) {
 			this.sql = sql;
 		}
-
+		
 		@Override
 		public ResultSet call() throws Exception {
 			return updateGenKeys(sql);
 		}
-
+		
 	}
-
+	
 	private class DatabaseQuery implements Callable<ResultSet> {
 		private String sql;
-
+		
 		public DatabaseQuery(String sql) {
 			this.sql = sql;
 		}
-
+		
 		@Override
 		public ResultSet call() throws Exception {
 			return query(sql);
 		}
-
+		
 	}
 }

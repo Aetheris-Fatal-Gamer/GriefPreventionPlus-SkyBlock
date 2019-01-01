@@ -1,10 +1,15 @@
-package net.kaikk.mc.gpp.skyblock;
+package net.kaikk.mc.gpp.skyblock.commands;
 
-import net.kaikk.mc.gpp.Claim;
-import net.kaikk.mc.gpp.ClaimPermission;
-import net.kaikk.mc.gpp.GriefPreventionPlus;
-import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
-import net.kaikk.mc.gpp.events.ClaimDeleteEvent.Reason;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
+import net.kaikk.mc.gpp.skyblock.Island;
+import net.kaikk.mc.gpp.skyblock.SpawnTeleportTask;
+import net.kaikk.mc.gpp.skyblock.Utils;
+import net.kaikk.mc.gpp.skyblock.bossshop.BSPHook;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -14,16 +19,17 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import net.kaikk.mc.gpp.Claim;
+import net.kaikk.mc.gpp.ClaimPermission;
+import net.kaikk.mc.gpp.GriefPreventionPlus;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent.Reason;
 
 public class CommandExec implements CommandExecutor {
 	private GPPSkyBlock instance;
 	private Map<UUID,String> confirmations = new HashMap<UUID,String>();
 
-	CommandExec(GPPSkyBlock instance) {
+	public CommandExec(GPPSkyBlock instance) {
 		this.instance = instance;
 	}
 
@@ -396,31 +402,31 @@ public class CommandExec implements CommandExecutor {
 		}
 
 		switch(args[1].toLowerCase()) {
-			case "island": {
-				island.setIslandBiome(biome);
-				break;
-			}
-			case "chunk": {
-				if (!island.getClaim().contains(player.getLocation(), true, false)) {
-					sender.sendMessage(ChatColor.RED+"You aren't inside your island.");
-					return false;
-				}
-
-				island.setChunkBiome(biome, player.getLocation().getBlockX()>>4, player.getLocation().getBlockZ()>>4);
-				break;
-			}
-			case "block": {
-				if (!island.getClaim().contains(player.getLocation(), true, false)) {
-					sender.sendMessage(ChatColor.RED+"Você não esta dentro da sua ilha!");
-					return false;
-				}
-
-				island.setBlockBiome(biome, player.getLocation().getBlockX(), player.getLocation().getBlockZ());
-				break;
-			}
-			default:
-				sender.sendMessage("Invalid parameter "+args[1]);
+		case "island": {
+			island.setIslandBiome(biome);
+			break;
+		}
+		case "chunk": {
+			if (!island.getClaim().contains(player.getLocation(), true, false)) {
+				sender.sendMessage(ChatColor.RED+"You aren't inside your island.");
 				return false;
+			}
+
+			island.setChunkBiome(biome, player.getLocation().getBlockX()>>4, player.getLocation().getBlockZ()>>4);
+			break;
+		}
+		case "block": {
+			if (!island.getClaim().contains(player.getLocation(), true, false)) {
+				sender.sendMessage(ChatColor.RED+"Você não esta dentro da sua ilha!");
+				return false;
+			}
+
+			island.setBlockBiome(biome, player.getLocation().getBlockX(), player.getLocation().getBlockZ());
+			break;
+		}
+		default:
+			sender.sendMessage("Invalid parameter "+args[1]);
+			return false;
 		}
 
 		sender.sendMessage(ChatColor.GREEN+"Bioma alterado! Você vai precisar deslogar e logar para ver a diferença!");

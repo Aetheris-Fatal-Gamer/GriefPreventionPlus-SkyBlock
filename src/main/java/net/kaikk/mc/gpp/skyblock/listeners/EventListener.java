@@ -1,11 +1,14 @@
-package net.kaikk.mc.gpp.skyblock;
+package net.kaikk.mc.gpp.skyblock.listeners;
 
-import net.kaikk.mc.gpp.Claim;
-import net.kaikk.mc.gpp.GriefPreventionPlus;
-import net.kaikk.mc.gpp.PlayerData;
-import net.kaikk.mc.gpp.events.*;
-import net.kaikk.mc.gpp.events.ClaimDeleteEvent.Reason;
-import org.bukkit.*;
+import java.sql.SQLException;
+
+import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
+import net.kaikk.mc.gpp.skyblock.Island;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -18,12 +21,20 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.sql.SQLException;
+import net.kaikk.mc.gpp.Claim;
+import net.kaikk.mc.gpp.GriefPreventionPlus;
+import net.kaikk.mc.gpp.PlayerData;
+import net.kaikk.mc.gpp.events.ClaimCreateEvent;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent.Reason;
+import net.kaikk.mc.gpp.events.ClaimExitEvent;
+import net.kaikk.mc.gpp.events.ClaimOwnerTransfer;
+import net.kaikk.mc.gpp.events.ClaimResizeEvent;
 
-class EventListener implements Listener {
+public class EventListener implements Listener {
 	private GPPSkyBlock instance;
-
-	EventListener(GPPSkyBlock instance) {
+	
+	public EventListener(GPPSkyBlock instance) {
 		this.instance = instance;
 	}
 
@@ -33,14 +44,14 @@ class EventListener implements Listener {
 		if (player == null || !player.isOnline() || player.getName() == null) {
 			return;
 		}
-
+		
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				if (!player.isOnline()) {
 					return;
 				}
-
+				
 				if (instance.config().autoSpawn && !player.hasPlayedBefore()) {
 					Island island = instance.dataStore().getIsland(player.getUniqueId());
 					if (island==null) {
@@ -52,22 +63,22 @@ class EventListener implements Listener {
 						}
 					}
 				}
-
-
+				
+				
 				if (isIslandWorld(player.getLocation().getWorld()) && GriefPreventionPlus.getInstance().getDataStore().getClaimAt(player.getLocation()) == null) {
 					player.teleport(GPPSkyBlock.getInstance().getSpawn());
 				}
-
+				
 			}
 		}.runTaskLater(instance, 20L);
 	}
-
-	@EventHandler(ignoreCancelled=true)
+	
+	@EventHandler(ignoreCancelled=true) 
 	void onClaimExit(ClaimExitEvent event) {
 		if (event.getPlayer().hasPermission("gppskyblock.override") || event.getPlayer().hasPermission("gppskyblock.leaveisland")) {
 			return;
 		}
-
+		
 		if (isIslandWorld(event.getFrom().getWorld()) && isIslandWorld(event.getTo().getWorld())) {
 			event.getPlayer().sendMessage(ChatColor.RED+"Você não pode voar para fora de sua ilha!");
 			Island island = getIsland(event.getClaim());
@@ -79,7 +90,7 @@ class EventListener implements Listener {
 			return;
 		}
 	}
-
+	
 	@EventHandler(ignoreCancelled=true, priority = EventPriority.MONITOR)
 	void onClaimDeleteMonitor(ClaimDeleteEvent event) {
 		Island island = getIsland(event.getClaim());
@@ -103,30 +114,30 @@ class EventListener implements Listener {
 			instance.getLogger().info("Removed "+island.getOwnerName()+"'s island because the claim was deleted. Reason: "+event.getDeleteReason()+".");
 		}
 	}
-
-	@EventHandler(ignoreCancelled=true)
+	
+	@EventHandler(ignoreCancelled=true) 
 	void onClaimCreate(ClaimCreateEvent event) {
 		if (event.getPlayer() == null) {
 			return;
 		}
-
+		
 		if (event.getPlayer().isOp()) {
 			return;
 		}
-
+		
 		if (event.getClaim().getParent() != null) {
 			return;
 		}
-
+		
 		if (!event.getClaim().getWorld().getName().equals(instance.config().worldName)) {
 			return;
 		}
-
+		
 		event.setCancelled(true);
 		event.setReason("You do not have permissions to create claims on the islands world.");
 	}
-
-	@EventHandler(ignoreCancelled=true)
+	
+	@EventHandler(ignoreCancelled=true) 
 	void onClaimResize(ClaimResizeEvent event) {
 		if (event.getPlayer()!=null && isIsland(event.getClaim())) {
 			event.setCancelled(true);
@@ -135,8 +146,8 @@ class EventListener implements Listener {
 			}
 		}
 	}
-
-	@EventHandler(ignoreCancelled=true)
+	
+	@EventHandler(ignoreCancelled=true) 
 	void onClaimOwnerTransfer(ClaimOwnerTransfer event) {
 		Island island = getIsland(event.getClaim());
 		if (island != null) {
@@ -147,8 +158,8 @@ class EventListener implements Listener {
 			}
 		}
 	}
-
-	@EventHandler(ignoreCancelled=true, priority = EventPriority.MONITOR)
+	
+	@EventHandler(ignoreCancelled=true, priority = EventPriority.MONITOR) 
 	void onClaimOwnerTransferMonitor(ClaimOwnerTransfer event) {
 		Island island = getIsland(event.getClaim());
 		if (island != null) {
@@ -165,7 +176,7 @@ class EventListener implements Listener {
 			}
 		}
 	}
-
+	
 	@EventHandler
 	void onPlayerTeleport(PlayerTeleportEvent event) {
 		if (!event.getPlayer().hasPermission("gppskyblock.override") && isIslandWorld(event.getTo().getWorld()) && !isIslandWorld(event.getFrom().getWorld()) && !event.getTo().equals(Bukkit.getWorld(instance.config().worldName).getSpawnLocation())) {
@@ -175,7 +186,7 @@ class EventListener implements Listener {
 			}
 		}
 	}
-
+	
 	@EventHandler
 	void onPlayerTeleport(PlayerPortalEvent event) {
 		if (event.getCause()==TeleportCause.END_PORTAL && isIslandWorld(event.getFrom().getWorld())) {
@@ -186,7 +197,7 @@ class EventListener implements Listener {
 			}
 		}
 	}
-
+	
 	@EventHandler
 	void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction()==Action.RIGHT_CLICK_BLOCK && event.getPlayer().getItemInHand().getType()==Material.BUCKET && event.getClickedBlock().getType()==Material.OBSIDIAN && event.getPlayer().hasPermission("gppskyblock.lava")) {
@@ -194,16 +205,16 @@ class EventListener implements Listener {
 			event.getPlayer().getItemInHand().setType(Material.LAVA_BUCKET);
 		}
 	}
-
+	
 	boolean isIsland(Claim claim) {
 		Island island = getIsland(claim);
 		if (island == null) {
 			return false;
 		}
-
+		
 		return island.getClaim() == claim;
 	}
-
+	
 	Island getIsland(Claim claim) {
 		if (!isIslandWorld(claim.getWorld())) {
 			return null;
@@ -214,7 +225,7 @@ class EventListener implements Listener {
 		}
 		return null;
 	}
-
+	
 	boolean isIslandWorld(World world) {
 		return world.getName().equals(instance.config().worldName);
 	}

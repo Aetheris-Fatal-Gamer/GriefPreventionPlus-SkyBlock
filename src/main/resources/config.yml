@@ -25,7 +25,7 @@ MySQL:
   Username: ${name}
   Password: ${name}Password
   Database: ${name}
-
+  
 # Default biome for islands. Set to UNCHANGED for leaving the island blocks biome unchanged.
 # Biome list: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/block/Biome.html
 DefaultBiome: OCEAN

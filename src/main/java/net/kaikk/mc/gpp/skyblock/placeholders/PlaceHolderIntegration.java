@@ -1,7 +1,9 @@
-package net.kaikk.mc.gpp.skyblock;
+package net.kaikk.mc.gpp.skyblock.placeholders;
 
 import me.clip.placeholderapi.external.EZPlaceholderHook;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
+import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
+import net.kaikk.mc.gpp.skyblock.Island;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
