@@ -7,7 +7,7 @@ import java.util.UUID;
 
 import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
 import net.kaikk.mc.gpp.skyblock.Island;
-import net.kaikk.mc.gpp.skyblock.SpawnTeleportTask;
+import net.kaikk.mc.gpp.skyblock.tasks.SpawnTeleportTask;
 import net.kaikk.mc.gpp.skyblock.Utils;
 import net.kaikk.mc.gpp.skyblock.bossshop.BSPHook;
 import org.bukkit.Bukkit;

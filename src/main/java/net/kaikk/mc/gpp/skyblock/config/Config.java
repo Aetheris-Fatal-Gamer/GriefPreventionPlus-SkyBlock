@@ -13,7 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Config {
 	public String dbHostname, dbUsername, dbPassword, dbDatabase, worldName, schematic;
 	public int nextRegion, radius, yLevel, tpCountdown;
-	public boolean autoSpawn, deleteRegion;
+	public boolean deleteRegion;
 	public Biome defaultBiome;
 	public List<Biome> allowedBiomes = new ArrayList<Biome>();
 	
@@ -57,7 +57,6 @@ public class Config {
 		this.dbPassword=instance.getConfig().getString("MySQL.Password");
 		this.dbDatabase=instance.getConfig().getString("MySQL.Database");
 		
-		this.autoSpawn=instance.getConfig().getBoolean("NewbiesAutoSpawn");
 		this.deleteRegion=instance.getConfig().getBoolean("DeleteRegion", true);
 		
 		allowedBiomes.clear();

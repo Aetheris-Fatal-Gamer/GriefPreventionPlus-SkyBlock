@@ -12,23 +12,25 @@ commands:
       aliases: [island, is]
 
 permissions:
-    gppskyblock.spawn:
-        default: true
-    gppskyblock.reset:
-        default: true
-    gppskyblock.setspawn:
-        default: true
-    gppskyblock.setbiome.all:
-        default: false
-    gppskyblock.manage:
-        default: op
-    gppskyblock.setradius:
-        default: op
-    gppskyblock.override:
-        default: op
-    gppskyblock.leaveisland:
-        default: true
-    gppskyblock.delete:
-        default: true
-    gppskyblock.delete.any:
-        default: op
+  gppskyblock.spawn:
+    default: true
+  gppskyblock.reset:
+    default: true
+  gppskyblock.setspawn:
+    default: true
+  gppskyblock.setbiome.all:
+    default: false
+  gppskyblock.manage:
+    default: op
+  gppskyblock.setradius:
+    default: op
+  gppskyblock.override:
+    default: op
+  gppskyblock.leaveisland:
+    default: true
+  gppskyblock.delete:
+    default: true
+  gppskyblock.delete.any:
+    default: op
+  gppskyblock.claimoutsidemainworld:
+    default: false

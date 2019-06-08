@@ -1,4 +1,4 @@
-package net.kaikk.mc.gpp.skyblock;
+package net.kaikk.mc.gpp.skyblock.tasks;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
+import net.kaikk.mc.gpp.skyblock.Island;
+import net.kaikk.mc.gpp.skyblock.Utils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -36,7 +39,7 @@ public class ResetIslandTask extends BukkitRunnable {
 		this.initCoords();
 		ownerName = island.getOwnerName();
 		if (island.isOwnerOnline()) {
-			island.getPlayer().sendMessage(ChatColor.GREEN+"Please wait while your island is generating!");
+			island.getPlayer().sendMessage(ChatColor.GREEN+"Por favor espere enquanto a sua ilha está sendo criada!");
 		}
 		Bukkit.getLogger().info("Generating "+ownerName+" island at "+island.getClaim().locationToString());
 	}
@@ -162,7 +165,7 @@ public class ResetIslandTask extends BukkitRunnable {
 			case COMPLETED: {
 				island.ready = true;
 				if (island.isOwnerOnline()) {
-					island.getPlayer().sendMessage(ChatColor.GREEN+"A sua ilha foi gerada com sucesso!. Você será teleportado em "+GPPSkyBlock.getInstance().config().tpCountdown+" segundos.");
+					island.getPlayer().sendMessage(ChatColor.GREEN+"A sua ilha foi gerada com sucesso! Você será teletransportado em "+GPPSkyBlock.getInstance().config().tpCountdown+" segundos.");
 					SpawnTeleportTask.teleportTask(island.getPlayer(), island, GPPSkyBlock.getInstance().config().tpCountdown);
 				}
 				Bukkit.getLogger().info(ownerName+" island reset completed.");

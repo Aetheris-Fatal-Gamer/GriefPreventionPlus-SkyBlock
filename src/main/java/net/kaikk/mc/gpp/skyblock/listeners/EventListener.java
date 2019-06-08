@@ -38,20 +38,21 @@ public class EventListener implements Listener {
 		this.instance = instance;
 	}
 
+	/*
 	@EventHandler(priority = EventPriority.MONITOR)
 	void onPlayerJoin(PlayerJoinEvent event) {
 		final Player player = event.getPlayer();
 		if (player == null || !player.isOnline() || player.getName() == null) {
 			return;
 		}
-		
+
 		new BukkitRunnable() {
 			@Override
 			public void run() {
 				if (!player.isOnline()) {
 					return;
 				}
-				
+
 				if (instance.config().autoSpawn && !player.hasPlayedBefore()) {
 					Island island = instance.dataStore().getIsland(player.getUniqueId());
 					if (island==null) {
@@ -63,22 +64,22 @@ public class EventListener implements Listener {
 						}
 					}
 				}
-				
-				
+
+
 				if (isIslandWorld(player.getLocation().getWorld()) && GriefPreventionPlus.getInstance().getDataStore().getClaimAt(player.getLocation()) == null) {
 					player.teleport(GPPSkyBlock.getInstance().getSpawn());
 				}
-				
+
 			}
 		}.runTaskLater(instance, 20L);
 	}
-	
-	@EventHandler(ignoreCancelled=true) 
+
+	@EventHandler(ignoreCancelled=true)
 	void onClaimExit(ClaimExitEvent event) {
 		if (event.getPlayer().hasPermission("gppskyblock.override") || event.getPlayer().hasPermission("gppskyblock.leaveisland")) {
 			return;
 		}
-		
+
 		if (isIslandWorld(event.getFrom().getWorld()) && isIslandWorld(event.getTo().getWorld())) {
 			event.getPlayer().sendMessage(ChatColor.RED+"Você não pode voar para fora de sua ilha!");
 			Island island = getIsland(event.getClaim());
@@ -90,14 +91,15 @@ public class EventListener implements Listener {
 			return;
 		}
 	}
-	
+	*/
+
 	@EventHandler(ignoreCancelled=true, priority = EventPriority.MONITOR)
 	void onClaimDeleteMonitor(ClaimDeleteEvent event) {
 		Island island = getIsland(event.getClaim());
 		if (island != null) {
 			if (event.getDeleteReason()!=Reason.EXPIRED && event.getDeleteReason()!=Reason.DELETE) {
 				event.setCancelled(true);
-				event.getPlayer().sendMessage(ChatColor.RED + "If you want to delete your island, use the \"/is delete\" command. Notice that this will permanently delete your island!");
+				event.getPlayer().sendMessage(ChatColor.RED + "Se você quer deletar a sua ilha use o comando \"/is delete\"!");
 				return;
 			}
 			island.teleportEveryoneToSpawn();
@@ -130,9 +132,12 @@ public class EventListener implements Listener {
 		}
 		
 		if (!event.getClaim().getWorld().getName().equals(instance.config().worldName)) {
+			if (event.getPlayer().hasPermission("gppskyblock.claimoutsidemainworld")){
+				event.setCancelled(true);
+			}
 			return;
 		}
-		
+
 		event.setCancelled(true);
 		event.setReason("You do not have permissions to create claims on the islands world.");
 	}
@@ -142,7 +147,7 @@ public class EventListener implements Listener {
 		if (event.getPlayer()!=null && isIsland(event.getClaim())) {
 			event.setCancelled(true);
 			if (event.getPlayer()!=null) {
-				event.getPlayer().sendMessage(ChatColor.RED+"You can't resize this claim. It's an island!");
+				event.getPlayer().sendMessage(ChatColor.RED+"Você não pode redefinir o tamanho dessa ilha. É uma ilha afinal das contas.It's an island!");
 			}
 		}
 	}

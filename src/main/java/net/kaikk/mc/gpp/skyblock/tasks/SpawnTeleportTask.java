@@ -1,5 +1,7 @@
-package net.kaikk.mc.gpp.skyblock;
+package net.kaikk.mc.gpp.skyblock.tasks;
 
+import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
+import net.kaikk.mc.gpp.skyblock.Island;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -34,20 +36,20 @@ public class SpawnTeleportTask extends BukkitRunnable {
 		} finally {
 			errors++;
 			if (errors > 50) {
-				player.sendMessage(ChatColor.RED+"Teleport cancelled");
+				player.sendMessage(ChatColor.RED+"Teleport cancelado");
 				this.cancel();
 				return;
 			}
 		}
-		
+
 		try {
 			if (this.location.distanceSquared(location)>0) {
-				player.sendMessage(ChatColor.RED+"Teleport cancelled");
+				player.sendMessage(ChatColor.RED+"Teleport cancelado");
 				this.cancel();
 				return;
 			}
 		} catch (IllegalStateException e) {
-			player.sendMessage(ChatColor.RED+"Teleport cancelled");
+			player.sendMessage(ChatColor.RED+"Teleport cancelado");
 			this.cancel();
 			return;
 		}

@@ -77,7 +77,8 @@
 			<artifactId>GriefPreventionPlus</artifactId>
 			<version>12.17</version>
 			<type>jar</type>
-			<scope>provided</scope>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/libs/GriefPreventionPlus-13.3.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.sample</groupId>

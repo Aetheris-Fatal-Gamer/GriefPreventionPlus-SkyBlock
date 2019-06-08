@@ -5,13 +5,10 @@ WorldName: world
 Schematic: default
 
 # Default island radius (max 255)
-Radius: 64
+Radius: 125
 
 # Island default y level spawn
 YLevel: 64
-
-# New players will be automatically teleported to their island upon login
-NewbiesAutoSpawn: false
 
 # When the island claim expires or the island gets deleted, delete the island region file to save hard disk space
 DeleteRegion: true
@@ -28,7 +25,7 @@ MySQL:
   
 # Default biome for islands. Set to UNCHANGED for leaving the island blocks biome unchanged.
 # Biome list: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/block/Biome.html
-DefaultBiome: OCEAN
+DefaultBiome: PLAINS
 
 # Biomes to be used with the "/is setbiome" command
 AllowedBiomes:
