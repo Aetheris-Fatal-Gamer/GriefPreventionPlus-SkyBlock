@@ -1,16 +1,22 @@
-package net.kaikk.mc.gpp.skyblock.tasks;
+package br.com.finalcraft.gppskyblock.tasks;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
-import net.kaikk.mc.gpp.skyblock.Island;
-import net.kaikk.mc.gpp.skyblock.Utils;
+import br.com.finalcraft.gppskyblock.GPPSkyBlock;
+import br.com.finalcraft.gppskyblock.Island;
+import br.com.finalcraft.gppskyblock.Utils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import com.sk89q.worldedit.EditSession;
@@ -44,17 +50,41 @@ public class ResetIslandTask extends BukkitRunnable {
 		Bukkit.getLogger().info("Generating "+ownerName+" island at "+island.getClaim().locationToString());
 	}
 
+	private final List<Chunk> islandChunks = new ArrayList<>();
+	private int INDEX = 0;
+	private int contador = 0;
 	@Override
 	public void run() {
 
+		GPPSkyBlock.info("[" + (contador++) +  "] ResetIslandTask - PhaseProcess " + this.stage);
+
 		switch(this.stage) {
-			case REGEN: {
+
+			case REGEN: { // Regenera 8 chunks por tick!
 				for (int i = 0; i<8; i++) {
 					if (x <= gx) {
 						if (z <= gz) {
 							try {
-								island.getClaim().getWorld().loadChunk(x, z, true);
-								island.getClaim().getWorld().regenerateChunk(x, z);
+								Chunk chunk = island.getClaim().getWorld().getChunkAt(x,z);
+								chunk.load(true);
+
+								for (Entity entity : chunk.getEntities()) {
+									if (entity instanceof Player){
+										((Player)entity).kickPlayer("§cUma ilha estava sendo resetada enquanto você estava próximo! T>T");
+									}else {
+										entity.remove();
+									}
+								}
+
+								for (BlockState blockState : chunk.getTileEntities()) {
+									blockState.setType(Material.AIR);
+									blockState.setData(new MaterialData(Material.AIR));
+									blockState.update(true,true);
+								}
+
+								chunk.getWorld().regenerateChunk(chunk.getX(),chunk.getZ());
+								chunk.unload(true);
+								islandChunks.add(chunk);
 							} catch (Exception e) {
 								if (island.isOwnerOnline()) {
 									island.getPlayer().sendMessage(ChatColor.RED+"An error occurred while generating a new island: regen error.");
@@ -77,31 +107,40 @@ public class ResetIslandTask extends BukkitRunnable {
 				return;
 			}
 			case CLEAR_THEM_ALL: {
-				final Location lesserBoundaryCorner = island.getClaim().getLesserBoundaryCorner();
-				final Location greaterBoundaryCorner = island.getClaim().getGreaterBoundaryCorner();
-				final World world = lesserBoundaryCorner.getWorld();
-				final int minX = lesserBoundaryCorner.getBlockX();
-				final int minY = lesserBoundaryCorner.getBlockY();
-				final int minZ = lesserBoundaryCorner.getBlockZ();
-				final int maxX = greaterBoundaryCorner.getBlockX();
-				final int maxY = greaterBoundaryCorner.getBlockY();
-				final int maxZ = greaterBoundaryCorner.getBlockZ();
-				for (int counterX = minX; counterX <= maxX; counterX++) {
-					for (int counterY = minY; counterY <= maxY; counterY++) {
-						for (int counterZ = minZ; counterZ <= maxZ; counterZ++) {
-							Location blockLocation = new Location(world, counterX, counterY, counterZ);
-							Block blockAtLocation = blockLocation.getBlock();
-							if (blockAtLocation.getType() != Material.AIR){
-								blockAtLocation.setType(Material.AIR);
+
+				for (int INDEX_PLUS_8 = INDEX + 8; INDEX < INDEX_PLUS_8 && INDEX < islandChunks.size(); INDEX++){
+					Chunk chunk = islandChunks.get(INDEX);
+					chunk.load(true);
+
+					final World world = chunk.getWorld();
+					int cx = chunk.getX() << 4;
+					int cz = chunk.getZ() << 4;
+					boolean foundAnyBlock = false;
+					for (int x = cx; x < cx + 16; x++) {
+						for (int z = cz; z < cz + 16; z++) {
+							for (int y = 0; y < 128; y++) {
+								Block block;
+								if ((block = world.getBlockAt(x, y, z)).getType() != Material.AIR) {
+									block.setType(Material.AIR);
+									foundAnyBlock = true;
+								}
 							}
 						}
 					}
+					if (foundAnyBlock == true){
+						chunk.unload(true);
+						chunk.load();
+					}
 				}
-				this.stage = Stage.SCHEMATIC;
+
+				if (INDEX == islandChunks.size()){
+					this.stage = Stage.SCHEMATIC;
+				}
+
 				return;
 			}
 			case SCHEMATIC: {
-				Bukkit.getLogger().info(ownerName+" island regeneration complete.");
+				Bukkit.getLogger().info(ownerName + " island regeneration complete.");
 				try {
 					// read schematic file
 					FileInputStream fis = new FileInputStream(schematic);
@@ -146,29 +185,15 @@ public class ResetIslandTask extends BukkitRunnable {
 				return;
 			}
 			case UNLOADCHUNKS: {
-				for (int i = 0; i<8; i++) {
-					if (x <= gx) {
-						if (z <= gz) {
-							island.getClaim().getWorld().unloadChunk(x, z);
-							z++;
-						} else {
-							this.z = lz;
-							x++;
-						}
-					} else {
-						this.stage = Stage.COMPLETED;
-						return;
-					}
-				}
+				islandChunks.forEach(Chunk::unload);
 				return;
 			}
 			case COMPLETED: {
 				island.ready = true;
 				if (island.isOwnerOnline()) {
-					island.getPlayer().sendMessage(ChatColor.GREEN+"A sua ilha foi gerada com sucesso! Você será teletransportado em "+GPPSkyBlock.getInstance().config().tpCountdown+" segundos.");
+					island.getPlayer().sendMessage(ChatColor.GREEN+"A sua ilha foi gerada com sucesso! Você será teletransportado em " + GPPSkyBlock.getInstance().config().tpCountdown + " segundos.");
 					SpawnTeleportTask.teleportTask(island.getPlayer(), island, GPPSkyBlock.getInstance().config().tpCountdown);
 				}
-				Bukkit.getLogger().info(ownerName+" island reset completed.");
 				this.cancel();
 				return;
 			}

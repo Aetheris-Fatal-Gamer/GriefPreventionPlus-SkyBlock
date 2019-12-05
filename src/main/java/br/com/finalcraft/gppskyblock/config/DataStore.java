@@ -1,4 +1,4 @@
-package net.kaikk.mc.gpp.skyblock.config;
+package br.com.finalcraft.gppskyblock.config;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,9 +15,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
-import net.kaikk.mc.gpp.skyblock.Island;
-import net.kaikk.mc.gpp.skyblock.Utils;
+import br.com.finalcraft.gppskyblock.GPPSkyBlock;
+import br.com.finalcraft.gppskyblock.Island;
+import br.com.finalcraft.gppskyblock.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -108,7 +108,7 @@ public class DataStore {
 		
 		Island island = new Island(uuid, result.getClaim());
 		try {
-			instance.dataStore().addIsland(island);
+			instance.getDataStore().addIsland(island);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			GriefPreventionPlus.getInstance().getDataStore().deleteClaim(result.getClaim());

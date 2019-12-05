@@ -1,15 +1,15 @@
-name: ${name}
-main: ${package}.${name}
-version: ${version}
-author: KaiNoMood
+name: GPPSkyBlock
+main: br.com.finalcraft.gppskyblock.GPPSkyBlock
+version: 2.0.1a
+author: EverNife
 depend: [GriefPreventionPlus, WorldEdit]
 softdepend: [ PlaceholderAPI, BossShopPro ]
 
 
 commands:
-   GPPSkyBlock:
-      description: ${name} main command
-      aliases: [island, is]
+  island:
+      description: GPPSkyBlock main command
+      aliases: [is]
 
 permissions:
   gppskyblock.spawn:

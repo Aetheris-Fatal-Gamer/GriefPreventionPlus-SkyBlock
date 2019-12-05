@@ -1,10 +1,11 @@
-package net.kaikk.mc.gpp.skyblock;
+package br.com.finalcraft.gppskyblock;
 
 import java.io.File;
 import java.sql.SQLException;
 import java.util.UUID;
 
-import net.kaikk.mc.gpp.skyblock.tasks.ResetIslandTask;
+import br.com.finalcraft.evernifecore.config.uuids.UUIDsController;
+import br.com.finalcraft.gppskyblock.tasks.ResetIslandTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
@@ -49,7 +50,7 @@ public class Island {
 	}
 	
 	public String getOwnerName() {
-		return Bukkit.getOfflinePlayer(ownerId).getName();
+		return UUIDsController.getNameFromUUID(ownerId);
 	}
 	
 	public boolean isOwnerOnline() {
@@ -108,7 +109,7 @@ public class Island {
 	
 	public void setSpawn(Location location) throws SQLException {
 		this.spawn = location;
-		GPPSkyBlock.getInstance().dataStore().updateIsland(this);
+		GPPSkyBlock.getInstance().getDataStore().updateIsland(this);
 	}
 	
 	public void setIslandBiome(Biome biome) {

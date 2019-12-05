@@ -1,9 +1,9 @@
-package net.kaikk.mc.gpp.skyblock.placeholders;
+package br.com.finalcraft.gppskyblock.placeholders;
 
 import me.clip.placeholderapi.external.EZPlaceholderHook;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
-import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
-import net.kaikk.mc.gpp.skyblock.Island;
+import br.com.finalcraft.gppskyblock.GPPSkyBlock;
+import br.com.finalcraft.gppskyblock.Island;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -45,7 +45,7 @@ public class PlaceHolderIntegration extends EZPlaceholderHook {
     }
 
     private static String islandIsPublic(Player player){
-        Island island = GPPSkyBlock.getInstance().dataStore().getIsland(player.getUniqueId());
+        Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
 
         if (island == null){
             return "&cVocê não possui uma ilha ainda!";
@@ -59,7 +59,7 @@ public class PlaceHolderIntegration extends EZPlaceholderHook {
 
     public static boolean playersIslandIsPublic(Player player){
 
-        Island island = GPPSkyBlock.getInstance().dataStore().getIsland(player.getUniqueId());
+        Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
 
         if (island != null){
             if (island.getClaim().getPermission(GriefPreventionPlus.UUID0) == 16){
@@ -71,7 +71,7 @@ public class PlaceHolderIntegration extends EZPlaceholderHook {
     }
 
     private static String islandRadius(Player player){
-        Island island = GPPSkyBlock.getInstance().dataStore().getIsland(player.getUniqueId());
+        Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
 
         if (island == null){
             return "&cVocê não possui uma ilha ainda!";
@@ -81,6 +81,6 @@ public class PlaceHolderIntegration extends EZPlaceholderHook {
     }
 
     private static String totalOfIslands(){
-        return "" + GPPSkyBlock.getInstance().dataStore().getTotalOfIslands();
+        return "" + GPPSkyBlock.getInstance().getDataStore().getTotalOfIslands();
     }
 }

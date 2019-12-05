@@ -1,4 +1,4 @@
-package net.kaikk.mc.gpp.skyblock;
+package br.com.finalcraft.gppskyblock;
 
 import java.io.BufferedInputStream;
 import java.io.File;

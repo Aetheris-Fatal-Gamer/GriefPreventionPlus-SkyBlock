@@ -1,25 +1,22 @@
-package net.kaikk.mc.gpp.skyblock.listeners;
+package br.com.finalcraft.gppskyblock.listeners;
 
 import java.sql.SQLException;
 
-import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
-import net.kaikk.mc.gpp.skyblock.Island;
+import br.com.finalcraft.gppskyblock.GPPSkyBlock;
+import br.com.finalcraft.gppskyblock.Island;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import net.kaikk.mc.gpp.Claim;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
@@ -27,7 +24,6 @@ import net.kaikk.mc.gpp.PlayerData;
 import net.kaikk.mc.gpp.events.ClaimCreateEvent;
 import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
 import net.kaikk.mc.gpp.events.ClaimDeleteEvent.Reason;
-import net.kaikk.mc.gpp.events.ClaimExitEvent;
 import net.kaikk.mc.gpp.events.ClaimOwnerTransfer;
 import net.kaikk.mc.gpp.events.ClaimResizeEvent;
 
@@ -54,10 +50,10 @@ public class EventListener implements Listener {
 				}
 
 				if (instance.config().autoSpawn && !player.hasPlayedBefore()) {
-					Island island = instance.dataStore().getIsland(player.getUniqueId());
+					Island island = instance.getDataStore().getIsland(player.getUniqueId());
 					if (island==null) {
 						try {
-							island = instance.dataStore().createIsland(player.getUniqueId());
+							island = instance.getDataStore().createIsland(player.getUniqueId());
 						} catch (Exception e) {
 							e.printStackTrace();
 							return;
@@ -107,7 +103,7 @@ public class EventListener implements Listener {
 				island.deleteRegionFile();
 			}
 			try {
-				instance.dataStore().removeIsland(island);
+				instance.getDataStore().removeIsland(island);
 				PlayerData playerData = GriefPreventionPlus.getInstance().getDataStore().getPlayerData(event.getClaim().getOwnerID());
 				playerData.setBonusClaimBlocks(playerData.getBonusClaimBlocks()-(((instance.config().radius*2)+1)*2));
 			} catch (SQLException e) {
@@ -156,7 +152,7 @@ public class EventListener implements Listener {
 	void onClaimOwnerTransfer(ClaimOwnerTransfer event) {
 		Island island = getIsland(event.getClaim());
 		if (island != null) {
-			Island is2 = instance.dataStore().getIsland(event.getNewOwnerUUID());
+			Island is2 = instance.getDataStore().getIsland(event.getNewOwnerUUID());
 			if (is2 != null) {
 				event.setCancelled(true);
 				event.setReason("This claim is an island and the other player has an island already. The other player has to delete their island first.");
@@ -170,8 +166,8 @@ public class EventListener implements Listener {
 		if (island != null) {
 			Island newIsland = new Island(event.getNewOwnerUUID(), event.getClaim(), island.getSpawn());
 			try {
-				this.instance.dataStore().removeIsland(island);
-				this.instance.dataStore().addIsland(newIsland);
+				this.instance.getDataStore().removeIsland(island);
+				this.instance.getDataStore().addIsland(newIsland);
 			} catch (SQLException e) {
 				instance.getLogger().severe("SQL exception while transferring island " + event.getClaim().getID() + "owner from " + event.getClaim().getOwnerName() + " to " + event.getNewOwnerUUID());
 				if (event.getPlayer() != null) {
@@ -224,7 +220,7 @@ public class EventListener implements Listener {
 		if (!isIslandWorld(claim.getWorld())) {
 			return null;
 		}
-		Island island = instance.dataStore().getIsland(claim.getOwnerID());
+		Island island = instance.getDataStore().getIsland(claim.getOwnerID());
 		if (island.getClaim() == claim) {
 			return island;
 		}

@@ -1,4 +1,4 @@
-package net.kaikk.mc.gpp.skyblock.config;
+package br.com.finalcraft.gppskyblock.config;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,11 +1,11 @@
-package net.kaikk.mc.gpp.skyblock;
+package br.com.finalcraft.gppskyblock;
 
-import net.kaikk.mc.gpp.skyblock.bossshop.BSPHook;
-import net.kaikk.mc.gpp.skyblock.commands.CommandExec;
-import net.kaikk.mc.gpp.skyblock.config.Config;
-import net.kaikk.mc.gpp.skyblock.config.DataStore;
-import net.kaikk.mc.gpp.skyblock.listeners.EventListener;
-import net.kaikk.mc.gpp.skyblock.placeholders.PlaceHolderIntegration;
+import br.com.finalcraft.gppskyblock.listeners.EventListener;
+import br.com.finalcraft.gppskyblock.placeholders.PlaceHolderIntegration;
+import br.com.finalcraft.gppskyblock.bossshop.BSPHook;
+import br.com.finalcraft.gppskyblock.commands.CommandRegisterer;
+import br.com.finalcraft.gppskyblock.config.Config;
+import br.com.finalcraft.gppskyblock.config.DataStore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,30 +16,27 @@ public class GPPSkyBlock extends JavaPlugin {
 	private static GPPSkyBlock instance;
 	private Config config;
 	private DataStore dataStore;
-	
-	// TODO LIST
-	// clickable sign that teleports the player to his island
-	// custom messages
 
 	public static void debug(String msg){
 		instance.getLogger().info("[Debug] " + msg.replace("&","§"));
 	}
 
+	public static void info(String msg){
+		instance.getLogger().info("[Info] " + msg);
+	}
 
 	@Override
 	public void onEnable() {
 		instance=this;
 
-		config = new Config(instance);
+		config = new Config(this);
 		
 		try {
 			dataStore = new DataStore(this);
 			this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
-			this.getCommand(this.getName()).setExecutor(new CommandExec(this));
+			CommandRegisterer.registerCommands(this);
 			PlaceHolderIntegration.initialize();
-			BSPHook.initiliaze(instance);
-
-
+			BSPHook.initiliaze(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -53,7 +50,7 @@ public class GPPSkyBlock extends JavaPlugin {
 		return config;
 	}
 
-	public DataStore dataStore() {
+	public DataStore getDataStore() {
 		return dataStore;
 	}
 	
@@ -63,10 +60,6 @@ public class GPPSkyBlock extends JavaPlugin {
 
 	public Config getPluginConfig() {
 		return config;
-	}
-
-	public DataStore getDataStore() {
-		return dataStore;
 	}
 
 	public Island getIsland(UUID playerId){

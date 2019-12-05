@@ -1,4 +1,5 @@
-# GriefPreventionPlus-SkyBlock
+# GriefPreventionPlus-SkyBlock FinalCraft Version
+
 Let your players have their own island with this GriefPreventionPlus extension.
 
 ### Major Features
@@ -19,6 +20,7 @@ Let your players have their own island with this GriefPreventionPlus extension.
 - /is setradius (radius) (island) - sets the radius of the specified island
 
 ### Requirements
+- EverNifeCore plugin (not public, sorry T.T)
 - Bukkit 1.7.10 or higher (works with kCauldron!)
 - GriefPreventionPlus 12.18 or higher
 - WorldEdit v6.0 or higher

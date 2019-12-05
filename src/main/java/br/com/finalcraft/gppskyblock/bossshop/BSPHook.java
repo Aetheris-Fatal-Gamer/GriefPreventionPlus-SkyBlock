@@ -1,4 +1,4 @@
-package net.kaikk.mc.gpp.skyblock.bossshop;
+package br.com.finalcraft.gppskyblock.bossshop;
 
 import org.black_ixx.bossshop.BossShop;
 import org.black_ixx.bossshop.api.BossShopAPI;

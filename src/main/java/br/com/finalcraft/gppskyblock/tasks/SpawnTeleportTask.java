@@ -1,7 +1,7 @@
-package net.kaikk.mc.gpp.skyblock.tasks;
+package br.com.finalcraft.gppskyblock.tasks;
 
-import net.kaikk.mc.gpp.skyblock.GPPSkyBlock;
-import net.kaikk.mc.gpp.skyblock.Island;
+import br.com.finalcraft.gppskyblock.GPPSkyBlock;
+import br.com.finalcraft.gppskyblock.Island;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -67,6 +67,6 @@ public class SpawnTeleportTask extends BukkitRunnable {
 	}
 	
 	public static void teleportTask(Player player, Island island, int countdown) {
-		new SpawnTeleportTask(player, island, countdown*4).runTaskTimer(GPPSkyBlock.getInstance(), 0L, 5L);
+		new SpawnTeleportTask(player, island, countdown * 4).runTaskTimer(GPPSkyBlock.getInstance(), 0L, 5L);
 	}
 }

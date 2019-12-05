@@ -5,10 +5,10 @@ WorldName: world
 Schematic: default
 
 # Default island radius (max 255)
-Radius: 125
+Radius: 120
 
 # Island default y level spawn
-YLevel: 64
+YLevel: 124
 
 # When the island claim expires or the island gets deleted, delete the island region file to save hard disk space
 DeleteRegion: true
