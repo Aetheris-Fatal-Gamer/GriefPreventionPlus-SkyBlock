@@ -36,7 +36,7 @@ public class EventListener implements Listener {
 
 	/*
 	@EventHandler(priority = EventPriority.MONITOR)
-	void onPlayerJoin(PlayerJoinEvent event) {
+	void onPlayerJoin(PlayerClaimDeleteEventnt event) {
 		final Player player = event.getPlayer();
 		if (player == null || !player.isOnline() || player.getName() == null) {
 			return;

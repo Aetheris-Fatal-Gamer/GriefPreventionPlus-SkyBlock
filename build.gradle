@@ -1,9 +1,31 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        flatDir {
+            dirs 'libs'
+        }
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+    }
+}
+
 group 'br.com.finalcraft'
-version '2.0.1a'
+version '2.0.2a'
 
 apply plugin: 'java'
+apply plugin: 'forge'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 compileJava.options.encoding = 'UTF-8'
 
@@ -15,23 +37,30 @@ repositories {
     flatDir {
         dirs 'libs'
         dirs 'C:/Users/Petrus/Desktop/Meus/workshop/workshop/PublicLibs/Bukkit'
+        dirs 'C:/Users/Petrus/Desktop/Meus/workshop/workshop/PublicLibs'
     }
     mavenCentral()
     maven {
         name = 'spigotmc-repo'
         url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
     }
+    maven {
+        name = "forge"
+        url = "http://files.minecraftforge.net/maven"
+    }
+}
 
+
+minecraft {
+    version = "1.7.10-10.13.4.1614-1.7.10"
+    mappings = "stable_12"
 }
 
 dependencies {
-    compile name: "BossShopPro-v1.9.8"
-    compile name: "GriefPreventionPlus-13.3"
-    compile name: "PlaceholderAPI"
-    compile name: "worldedit-bukkit-6.1.7-SNAPSHOT-dist"
+    compile name: "EverNifeCore-1.3.3a"
+    compile name: 'EventHelper-1.7.10-1.12-dev'
 
-    compile name: "EverNifeCore-1.3.2a"
-    compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    compile name: "craftbukkit1710"
+    compile 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
     testCompile group: 'junit', name: 'junit', version: '4.12'
-
 }

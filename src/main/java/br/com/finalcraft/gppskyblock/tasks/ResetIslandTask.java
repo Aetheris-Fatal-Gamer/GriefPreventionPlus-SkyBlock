@@ -55,11 +55,8 @@ public class ResetIslandTask extends BukkitRunnable {
 	private int contador = 0;
 	@Override
 	public void run() {
-
 		GPPSkyBlock.info("[" + (contador++) +  "] ResetIslandTask - PhaseProcess " + this.stage);
-
 		switch(this.stage) {
-
 			case REGEN: { // Regenera 8 chunks por tick!
 				for (int i = 0; i<8; i++) {
 					if (x <= gx) {
@@ -186,6 +183,7 @@ public class ResetIslandTask extends BukkitRunnable {
 			}
 			case UNLOADCHUNKS: {
 				islandChunks.forEach(Chunk::unload);
+				this.stage = Stage.COMPLETED;
 				return;
 			}
 			case COMPLETED: {

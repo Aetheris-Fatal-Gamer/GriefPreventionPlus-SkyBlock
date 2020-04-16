@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 import br.com.finalcraft.evernifecore.config.uuids.UUIDsController;
-import br.com.finalcraft.gppskyblock.tasks.ResetIslandTask;
+import br.com.finalcraft.gppskyblock.tasks.ResetIslandThread;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
@@ -67,7 +67,8 @@ public class Island {
 			this.teleportEveryoneToSpawn();
 
 			this.ready = false;
-			new ResetIslandTask(this, schematicFile).runTaskTimer(GPPSkyBlock.getInstance(), 1L, 1L);
+			//new ResetIslandTask(this, schematicFile).runTaskTimer(GPPSkyBlock.getInstance(), 1L, 1L);
+			new ResetIslandThread(this, schematicFile);
 		}catch (Exception e){
 			e.printStackTrace();
 		}

@@ -386,15 +386,13 @@ public class CMDIsland implements CommandExecutor {
             return false;
         }
 
-        Cooldown cooldown = new Cooldown("GPPSkyBlock-ISRESET",player.getName(),259200);//3 Dias
-
+        Cooldown cooldown = Cooldown.getOrCreateCooldown("GPPSkyBlock-ISRESET",player.getName());
         if (cooldown.isInCooldown()){
             cooldown.warnPlayer(sender);
             return true;
         }
         cooldown.setPermaCooldown(true);
-        cooldown.start();
-
+        cooldown.startWith(259200);//3 Dias
         island.reset();
         return true;
     }
@@ -423,9 +421,14 @@ public class CMDIsland implements CommandExecutor {
             return true;
         }
 
+
         if (!island.ready) {
-            sender.sendMessage("§4§l ▶ §cExiste alguma operação pendente nessa ilha!");
-            return true;
+            if (!argumentos.getFlag("-force").isSet()){
+                sender.sendMessage("§4§l ▶ §cExiste alguma operação pendente nessa ilha!");
+                return true;
+            }else {
+                island.ready = true;
+            }
         }
 
         ClaimDeleteEvent event = new ClaimDeleteEvent(island.getClaim(), (sender instanceof Player ? (Player) sender : null) , ClaimDeleteEvent.Reason.DELETE);
