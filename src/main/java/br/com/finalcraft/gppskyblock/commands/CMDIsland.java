@@ -1,22 +1,19 @@
 package br.com.finalcraft.gppskyblock.commands;
 
-import br.com.finalcraft.evernifecore.FCBukkitUtil;
 import br.com.finalcraft.evernifecore.argumento.MultiArgumentos;
 import br.com.finalcraft.evernifecore.config.playerdata.PlayerController;
 import br.com.finalcraft.evernifecore.config.playerdata.PlayerData;
 import br.com.finalcraft.evernifecore.cooldown.Cooldown;
 import br.com.finalcraft.evernifecore.fancytext.FancyText;
+import br.com.finalcraft.evernifecore.util.FCBukkitUtil;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
-import br.com.finalcraft.gppskyblock.Utils;
-import net.kaikk.mc.gpp.Claim;
-import net.kaikk.mc.gpp.ClaimPermission;
-import net.kaikk.mc.gpp.GriefPreventionPlus;
-import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
 import br.com.finalcraft.gppskyblock.PermissionNodes;
+import br.com.finalcraft.gppskyblock.Utils;
 import br.com.finalcraft.gppskyblock.bossshop.BSPHook;
+import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
+import br.com.finalcraft.gppskyblock.integration.IClaim;
 import br.com.finalcraft.gppskyblock.tasks.SpawnTeleportTask;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
@@ -24,7 +21,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +64,13 @@ public class CMDIsland implements CommandExecutor {
 
         }
 
-        sender.sendMessage("&cErro de parametros, por favor use /" + label + " help");
+        PlayerData playerData = argumentos.get(0).getPlayerData();
+        if (playerData != null){
+            FCBukkitUtil.makePlayerExecuteCommand(sender,label + " spawn " + playerData.getPlayerName());
+            return true;
+        }
+
+        sender.sendMessage("§cErro de parâmetros, por favor use /" + label + " help");
         return true;
     }
 
@@ -140,7 +142,7 @@ public class CMDIsland implements CommandExecutor {
                 return false;
             }
 
-            if (island.getClaim().canEnter(thePlayer) != null) {
+            if (island.getClaim().canEnter(thePlayer)) {
                 sender.sendMessage("§4§l ▶ §c Você não tem permissão para entrar nessa ilha!");
                 return false;
             }
@@ -198,7 +200,7 @@ public class CMDIsland implements CommandExecutor {
             return false;
         }
 
-        if (!island.getClaim().contains(thePlayer.getLocation(), true, false)) {
+        if (!island.getClaim().contains(thePlayer.getLocation(), false)) {
             sender.sendMessage("§4§l ▶ §cVocê precisa estar dentro da sa ilha para usar esse comando!");
             return false;
         }
@@ -211,7 +213,7 @@ public class CMDIsland implements CommandExecutor {
         try {
             island.setSpawn(thePlayer.getLocation().add(0, 2, 0));
             sender.sendMessage("§3§l ▶ §aSpawn da ilha definido com sucesso!");
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             sender.sendMessage(ChatColor.RED+"An error occurred while creating the island: data store issue.");
             return false;
@@ -319,9 +321,9 @@ public class CMDIsland implements CommandExecutor {
             return false;
         }
 
-        Claim claim = island.getClaim();
-        claim.setPermission(player.getUniqueId(), ClaimPermission.ENTRY);
-        claim.dropPermission(GriefPreventionPlus.UUID0);
+        IClaim claim = island.getClaim();
+        claim.setPermission(player.getUniqueId(), "ENTRY");
+        claim.setPublicEntryTrust(false);
         sender.sendMessage("§6§l ▶ §eSua ilha está §9§lPrivada!");
         sender.sendMessage("§7§oOu seja, apenas jogadores com §n/entrytrust §7podem entrar nela!");
         return true;
@@ -346,9 +348,9 @@ public class CMDIsland implements CommandExecutor {
             return false;
         }
 
-        Claim claim = island.getClaim();
+        IClaim claim = island.getClaim();
         claim.dropPermission(player.getUniqueId());
-        claim.setPermission(GriefPreventionPlus.UUID0, ClaimPermission.ENTRY);
+        claim.setPublicEntryTrust(true);
         sender.sendMessage("§6§l ▶ §eSua ilha está §a§lPublica!");
         sender.sendMessage("§7§oOu seja, qualquer um pode entrar nela!");
         return true;
@@ -431,9 +433,8 @@ public class CMDIsland implements CommandExecutor {
             }
         }
 
-        ClaimDeleteEvent event = new ClaimDeleteEvent(island.getClaim(), (sender instanceof Player ? (Player) sender : null) , ClaimDeleteEvent.Reason.DELETE);
-        Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled()) {
+        boolean isCancealed = GPPluginBase.getInstance().fireClaimDeleteEvent(island.getClaim(),(sender instanceof Player ? (Player) sender : null));
+        if (isCancealed) {
             sender.sendMessage("§4§l ▶ §cEssa ilha não pode ser deletada!");
             return true;
         }

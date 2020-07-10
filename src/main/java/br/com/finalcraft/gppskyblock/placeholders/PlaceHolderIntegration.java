@@ -1,9 +1,8 @@
 package br.com.finalcraft.gppskyblock.placeholders;
 
-import me.clip.placeholderapi.external.EZPlaceholderHook;
-import net.kaikk.mc.gpp.GriefPreventionPlus;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
+import me.clip.placeholderapi.external.EZPlaceholderHook;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -44,33 +43,20 @@ public class PlaceHolderIntegration extends EZPlaceholderHook {
         return null;
     }
 
-    private static String islandIsPublic(Player player){
+    private String islandIsPublic(Player player){
         Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
 
         if (island == null){
             return "&cVocê não possui uma ilha ainda!";
         }
 
-        if (island.getClaim().getPermission(GriefPreventionPlus.UUID0) == 16){
+        if (island.getClaim().isPublicEntryTrust()){
             return "Sim";
         }
         return "Não";
     }
 
-    public static boolean playersIslandIsPublic(Player player){
-
-        Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
-
-        if (island != null){
-            if (island.getClaim().getPermission(GriefPreventionPlus.UUID0) == 16){
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static String islandRadius(Player player){
+    private String islandRadius(Player player){
         Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
 
         if (island == null){
@@ -78,6 +64,19 @@ public class PlaceHolderIntegration extends EZPlaceholderHook {
         }
 
         return ""+ island.getRadius();
+    }
+
+    public static boolean playersIslandIsPublic(Player player){
+
+        Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
+
+        if (island != null){
+            if (island.getClaim().isPublicEntryTrust()){
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static String totalOfIslands(){

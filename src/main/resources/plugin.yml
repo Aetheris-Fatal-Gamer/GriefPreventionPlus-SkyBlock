@@ -2,9 +2,8 @@ name: GPPSkyBlock
 main: br.com.finalcraft.gppskyblock.GPPSkyBlock
 version: 2.0.1a
 author: EverNife
-depend: [GriefPreventionPlus, WorldEdit]
-softdepend: [ PlaceholderAPI, BossShopPro ]
-
+depend: [WorldEdit]
+softdepend: [ PlaceholderAPI, BossShopPro, GriefPreventionPlus, GriefDefender ]
 
 commands:
   island:

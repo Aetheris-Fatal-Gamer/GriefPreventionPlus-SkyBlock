@@ -1,24 +1,8 @@
 package br.com.finalcraft.gppskyblock.tasks;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.Utils;
-import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.WorldEdit;
@@ -30,7 +14,22 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.registry.LegacyWorldData;
 import com.sk89q.worldedit.world.registry.WorldData;
+import org.bukkit.*;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@Deprecated //Not used anymore
 public class ResetIslandTask extends BukkitRunnable {
 	private File schematic;
 	private Island island;
@@ -154,7 +153,7 @@ public class ResetIslandTask extends BukkitRunnable {
 		
 					try {
 						island.setSpawn(island.getCenter());
-					} catch (SQLException e) {
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 		
@@ -207,7 +206,11 @@ public class ResetIslandTask extends BukkitRunnable {
 	}
 	
 	enum Stage {
-		REGEN, CLEAR_THEM_ALL, SCHEMATIC, UNLOADCHUNKS, COMPLETED;
+		REGEN, //Carrega 8 chunks por tick, e usa a função .regen() do próprio bukkit
+		CLEAR_THEM_ALL, //Uma proteção extra que eu fiz, passa por todas as chunks novamente deletando todos os blocos dela.
+		SCHEMATIC, //Copia a schematic e cola ela no centro da bagaça
+		UNLOADCHUNKS, //Descarrega todas as chunks (uma chunk só é salva quando descarregada)
+		COMPLETED; //Teleporta o jgoador para a ilha
 	}
 	
 }

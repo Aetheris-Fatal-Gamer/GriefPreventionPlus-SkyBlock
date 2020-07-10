@@ -1,10 +1,11 @@
 package br.com.finalcraft.gppskyblock.tasks;
 
-import br.com.finalcraft.evernifecore.FCWorldUtil;
+import br.com.finalcraft.evernifecore.integration.everforgelib.DimensionHelper;
+import br.com.finalcraft.evernifecore.util.FCWorldUtil;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.Utils;
-import com.gamerforea.eventhelper.util.ConvertUtils;
+import br.com.finalcraft.gppskyblock.integration.IClaim;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.WorldEdit;
@@ -16,13 +17,14 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.registry.LegacyWorldData;
 import com.sk89q.worldedit.world.registry.WorldData;
-import net.kaikk.mc.gpp.Claim;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.ChunkProviderServer;
-import org.bukkit.*;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -32,21 +34,20 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-public class ResetIslandThread extends Thread {
+public class ResetIslandThreadGPP extends Thread {
 
-    private final ResetIslandThread instance;
+    private final ResetIslandThreadGPP instance;
     private final Island island;
     private final String ownerName;
-    private final Claim claim;
-    private final WorldServer world;
+    private final IClaim claim;
     private final World bWorld;
+    private final WorldServer world;
     private final Player player;
     private final ChunkProviderServer chunkProvider;
     private final List<Supplier<Chunk>> chunkSuppliers = new ArrayList<>();
@@ -54,13 +55,13 @@ public class ResetIslandThread extends Thread {
     private final List<Runnable> bukkitBiomaChanger = new ArrayList<>();
     private final File schematic;
 
-    public ResetIslandThread(Island island, File schematic) {
+    public ResetIslandThreadGPP(Island island, File schematic) {
         this.instance = this;
         this.island = island;
         this.ownerName = island.getOwnerName();
         this.claim  = island.getClaim();
-        this.world  = ConvertUtils.toMinecraftWorld(island.getClaim().getWorld());
-        this.bWorld = ConvertUtils.toBukkitWorld(world);
+        this.bWorld = island.getClaim().getWorld();
+        this.world  = (WorldServer) DimensionHelper.getIWorld(bWorld).getWorld();
         this.player = island.getPlayer();
         this.chunkProvider = (ChunkProviderServer) world.getChunkProvider();
         this.schematic = schematic;
@@ -79,7 +80,6 @@ public class ResetIslandThread extends Thread {
     private void fillSuppliers(){
         chunkSuppliers.clear();
         List<Location> minAndMaxPoints = FCWorldUtil.getMinimumAndMaximumLocation(Arrays.asList(claim.getLesserBoundaryCorner(), claim.getGreaterBoundaryCorner()));
-        List<Chunk> allChunks = new ArrayList<>();
         int lowerX = minAndMaxPoints.get(0).getBlockX()>>4;
         int lowerZ = minAndMaxPoints.get(0).getBlockZ()>>4;
         int upperX = minAndMaxPoints.get(1).getBlockX()>>4;
@@ -165,7 +165,7 @@ public class ResetIslandThread extends Thread {
 
             try {
                 island.setSpawn(island.getCenter());
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -363,5 +363,4 @@ public class ResetIslandThread extends Thread {
             sendMessage("§c§o" + e.getMessage());
         }
     }
-
 }

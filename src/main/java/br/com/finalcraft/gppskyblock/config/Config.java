@@ -1,14 +1,14 @@
 package br.com.finalcraft.gppskyblock.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Config {
 	public String dbHostname, dbUsername, dbPassword, dbDatabase, worldName, schematic;
@@ -32,7 +32,7 @@ public class Config {
 			instance.getLogger().severe("Island schematic file \""+schematic+".schematic\" doesn't exist!");
 		}
 		
-		this.radius=instance.getConfig().getInt("Radius");
+		this.radius = instance.getConfig().getInt("Radius");
 		if (this.radius>255) {
 			this.radius=255;
 		} else if (this.radius<10) {
@@ -61,11 +61,11 @@ public class Config {
 		
 		allowedBiomes.clear();
 		for (String biomeString : instance.getConfig().getStringList("AllowedBiomes")) {
-			Biome biome = Biome.valueOf(biomeString);
-			if (biome == null) {
-				instance.getLogger().warning("Skipping unknown allowed biome \""+biomeString+"\"");
-			} else {
+			try {
+				Biome biome = Biome.valueOf(biomeString);
 				allowedBiomes.add(biome);
+			}catch (IllegalArgumentException e){
+				instance.getLogger().warning("Skipping unknown allowed biome \""+biomeString+"\"");
 			}
 		}
 		
@@ -87,7 +87,7 @@ public class Config {
 		}
 	}
 	
-	void saveData() {
+	public void saveData() {
 		File file = new File(instance.getDataFolder(), "data.yml");
 		FileConfiguration data = YamlConfiguration.loadConfiguration(file);
 		if (data==null) {

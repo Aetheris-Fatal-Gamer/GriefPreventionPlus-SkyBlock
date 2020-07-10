@@ -1,39 +1,35 @@
 package br.com.finalcraft.gppskyblock;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.UUID;
-
 import br.com.finalcraft.evernifecore.config.uuids.UUIDsController;
-import br.com.finalcraft.gppskyblock.tasks.ResetIslandThread;
+import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
+import br.com.finalcraft.gppskyblock.integration.IClaim;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 
-import net.kaikk.mc.gpp.Claim;
-import net.kaikk.mc.gpp.GriefPreventionPlus;
-import net.kaikk.mc.gpp.PlayerData;
+import java.io.File;
+import java.util.UUID;
 
 public class Island {
 	private UUID ownerId;
-	private Claim claim;
+	private IClaim claim;
 	private Location spawn;
 	public boolean ready = true;
 	
-	public Island(UUID ownerId, Claim claim) {
+	public Island(UUID ownerId, IClaim claim) {
 		this.ownerId = ownerId;
 		this.claim = claim;
 		this.spawn = this.getCenter().add(0.5, 1, 0.5);
 	}
 	
-	public Island(UUID ownerId, Claim claim, Location spawn) {
+	public Island(UUID ownerId, IClaim claim, Location spawn) {
 		this.ownerId = ownerId;
 		this.claim = claim;
 		this.spawn = spawn;
 	}
 	
-	public Claim getClaim() {
+	public IClaim getClaim() {
 		return claim;
 	}
 	
@@ -68,7 +64,7 @@ public class Island {
 
 			this.ready = false;
 			//new ResetIslandTask(this, schematicFile).runTaskTimer(GPPSkyBlock.getInstance(), 1L, 1L);
-			new ResetIslandThread(this, schematicFile);
+			GPPluginBase.getInstance().assyncRestoreIsland(this, schematicFile);
 		}catch (Exception e){
 			e.printStackTrace();
 		}
@@ -81,17 +77,12 @@ public class Island {
 		
 		return (gx-lx)/2;
 	}
-	
+
 	public void setRadius(int radius) {
 		if (radius>254 || radius<1) {
 			throw new IllegalArgumentException("Invalid radius (max 254)");
 		}
-		Location center = this.getCenter();
-		int size = this.claim.getArea();		
-		GriefPreventionPlus.getInstance().getDataStore().resizeClaim(this.claim, center.getBlockX()-radius, center.getBlockZ()-radius, center.getBlockX()+radius, center.getBlockZ()+radius, null);
-		PlayerData playerData = GriefPreventionPlus.getInstance().getDataStore().getPlayerData(ownerId);
-		playerData.setBonusClaimBlocks(playerData.getBonusClaimBlocks()+(this.claim.getArea()-size));
-		GriefPreventionPlus.getInstance().getDataStore().savePlayerData(ownerId, playerData);
+		GPPluginBase.getInstance().setRadius(this, radius);
 	}
 	
 	public Location getCenter() {
@@ -102,13 +93,13 @@ public class Island {
 	public void teleportEveryoneToSpawn() {
 		Location spawnLocation = GPPSkyBlock.getInstance().getSpawn();
 		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (this.getClaim().contains(player.getLocation(), true, false)) {
+			if (this.getClaim().contains(player.getLocation(), false)) {
 				player.teleport(spawnLocation);
 			}
 		}
 	}
 	
-	public void setSpawn(Location location) throws SQLException {
+	public void setSpawn(Location location) throws Exception {
 		this.spawn = location;
 		GPPSkyBlock.getInstance().getDataStore().updateIsland(this);
 	}

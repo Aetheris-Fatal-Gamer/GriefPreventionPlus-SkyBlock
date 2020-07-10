@@ -1,47 +1,34 @@
-package br.com.finalcraft.gppskyblock.config;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+package br.com.finalcraft.gppskyblock.config.datastore;
 
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.Utils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-
+import br.com.finalcraft.gppskyblock.integration.wrapper.griefpreventionplus.WrGPPClaim;
 import net.kaikk.mc.gpp.Claim;
 import net.kaikk.mc.gpp.ClaimResult;
 import net.kaikk.mc.gpp.ClaimResult.Result;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
 import net.kaikk.mc.gpp.PlayerData;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
 
-public class DataStore {
-	private GPPSkyBlock instance;
-	private String dbUrl, username, password;
-	private Connection db = null;
-	private Map<UUID, Island> islands = new HashMap<UUID,Island>();
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
-	public int getTotalOfIslands(){
-		return this.islands.size();
-	}
+public class DataStoreGPP extends DataStore {
 
-	private ExecutorService executor = Executors.newSingleThreadExecutor();
+	public String dbUrl, username, password;
 
-	public DataStore(GPPSkyBlock instance) throws Exception {
-		this.instance=instance;
+	public DataStoreGPP(GPPSkyBlock instance) throws Exception {
+		super(instance);
 		this.dbUrl = "jdbc:mysql://"+instance.config().dbHostname+"/"+instance.config().dbDatabase;
 		this.username = instance.config().dbUsername;
 		this.password = instance.config().dbPassword;
@@ -78,11 +65,12 @@ public class DataStore {
 			UUID uuid = Utils.toUUID(rs.getBytes(1));
 			Claim claim = GriefPreventionPlus.getInstance().getDataStore().getClaim(rs.getInt(2));
 			if (claim!=null) {
-				islands.put(uuid, new Island(uuid, claim, new Location(claim.getWorld(), rs.getInt(3)+0.5, rs.getInt(4), rs.getInt(5)+0.5)));
+				islands.put(uuid, new Island(uuid, new WrGPPClaim(claim), new Location(claim.getWorld(), rs.getInt(3)+0.5, rs.getInt(4), rs.getInt(5)+0.5)));
 			}
 		}
 	}
-	
+
+	@Override
 	public Island createIsland(UUID uuid) throws Exception {
 		if (instance.config().nextRegion > 1822500) {
 			throw new Exception("Max amount of islands reached.");
@@ -106,9 +94,9 @@ public class DataStore {
 		instance.config().nextRegion++;
 		instance.config().saveData();
 		
-		Island island = new Island(uuid, result.getClaim());
+		Island island = new Island(uuid, new WrGPPClaim(result.getClaim()));
 		try {
-			instance.getDataStore().addIsland(island);
+			this.addIsland(island);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			GriefPreventionPlus.getInstance().getDataStore().deleteClaim(result.getClaim());
@@ -197,22 +185,26 @@ public class DataStore {
 			
 		}
 	}
-	
+
+	@Override
 	public Island getIsland(UUID playerId) {
 		return this.islands.get(playerId);
 	}
 
-    public void addIsland(Island island) throws SQLException {
+	@Override
+	public void addIsland(Island island) throws Exception {
 		this.statement().executeUpdate("INSERT INTO gppskyblock_islands VALUES("+Utils.UUIDtoHexString(island.getOwnerId())+", "+island.getClaim().getID()+", "+island.getSpawn().getBlockX()+", "+island.getSpawn().getBlockY()+", "+island.getSpawn().getBlockZ()+");");
 		this.islands.put(island.getOwnerId(), island);
 	}
-	
-	public void removeIsland(Island island) throws SQLException {
+
+	@Override
+	public void removeIsland(Island island) throws Exception {
 		this.statement().executeUpdate("DELETE FROM gppskyblock_islands WHERE player = "+Utils.UUIDtoHexString(island.getOwnerId())+" LIMIT 1");
 		this.islands.remove(island.getOwnerId());
 	}
 
-    public void updateIsland(Island island) throws SQLException {
+	@Override
+	public void updateIsland(Island island) throws Exception {
 		this.statement().executeUpdate("UPDATE gppskyblock_islands SET sx = "+island.getSpawn().getBlockX()+", sy = "+island.getSpawn().getBlockY()+", sz = "+island.getSpawn().getBlockZ()+" WHERE player = "+Utils.UUIDtoHexString(island.getOwnerId())+" LIMIT 1");
 	}
 	

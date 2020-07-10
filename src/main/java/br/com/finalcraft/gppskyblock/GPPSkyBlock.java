@@ -1,11 +1,11 @@
 package br.com.finalcraft.gppskyblock;
 
-import br.com.finalcraft.gppskyblock.listeners.EventListener;
-import br.com.finalcraft.gppskyblock.placeholders.PlaceHolderIntegration;
 import br.com.finalcraft.gppskyblock.bossshop.BSPHook;
 import br.com.finalcraft.gppskyblock.commands.CommandRegisterer;
 import br.com.finalcraft.gppskyblock.config.Config;
-import br.com.finalcraft.gppskyblock.config.DataStore;
+import br.com.finalcraft.gppskyblock.config.datastore.DataStore;
+import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
+import br.com.finalcraft.gppskyblock.placeholders.PlaceHolderIntegration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,13 +27,14 @@ public class GPPSkyBlock extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		instance=this;
-
+		instance = this;
 		config = new Config(this);
-		
 		try {
-			dataStore = new DataStore(this);
-			this.getServer().getPluginManager().registerEvents(new EventListener(this), this);
+			GPPluginBase pluginBase = GPPluginBase.intialize();
+
+			dataStore = pluginBase.setupDataStore();
+			pluginBase.registerEventListeners();
+
 			CommandRegisterer.registerCommands(this);
 			PlaceHolderIntegration.initialize();
 			BSPHook.initiliaze(this);
