@@ -19,7 +19,7 @@ buildscript {
 }
 
 group 'br.com.finalcraft'
-version '2.1.0a'
+version '2.0.2a'
 
 apply plugin: 'java'
 apply plugin: 'forge'

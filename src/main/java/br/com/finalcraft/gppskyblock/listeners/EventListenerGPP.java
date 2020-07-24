@@ -115,14 +115,6 @@ public class EventListenerGPP implements Listener {
 		}
 	}
 	
-	@EventHandler
-	void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.getAction()==Action.RIGHT_CLICK_BLOCK && event.getPlayer().getItemInHand().getType()==Material.BUCKET && event.getClickedBlock().getType()==Material.OBSIDIAN && event.getPlayer().hasPermission("gppskyblock.lava")) {
-			event.getClickedBlock().setType(Material.AIR);
-			event.getPlayer().getItemInHand().setType(Material.LAVA_BUCKET);
-		}
-	}
-	
 	boolean isIsland(Claim claim) {
 		Island island = getIsland(claim);
 		if (island == null) {

@@ -3,7 +3,7 @@ package br.com.finalcraft.gppskyblock.integration.wrapper.griefdefender;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.config.datastore.DataStore;
-import br.com.finalcraft.gppskyblock.config.datastore.DataStoreGD;
+import br.com.finalcraft.gppskyblock.config.datastore.gd.DataStoreGD;
 import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
 import br.com.finalcraft.gppskyblock.integration.IClaim;
 import br.com.finalcraft.gppskyblock.listeners.EventListenerGD;

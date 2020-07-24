@@ -3,12 +3,14 @@ package br.com.finalcraft.gppskyblock.integration.wrapper.griefpreventionplus;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.config.datastore.DataStore;
-import br.com.finalcraft.gppskyblock.config.datastore.DataStoreGPP;
+import br.com.finalcraft.gppskyblock.config.datastore.gpp.DataStoreGPPMysql;
+import br.com.finalcraft.gppskyblock.config.datastore.gpp.DataStoreGPPYML;
 import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
 import br.com.finalcraft.gppskyblock.integration.IClaim;
 import br.com.finalcraft.gppskyblock.listeners.EventListenerGPP;
 import br.com.finalcraft.gppskyblock.tasks.ResetIslandThreadGPP;
 import net.kaikk.mc.gpp.Claim;
+import net.kaikk.mc.gpp.DataStoreMySQL;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
 import net.kaikk.mc.gpp.PlayerData;
 import org.bukkit.Bukkit;
@@ -26,7 +28,11 @@ public class WrGPPPluginBase extends GPPluginBase {
 
     @Override
     public DataStore setupDataStore() throws Exception{
-        return new DataStoreGPP(GPPSkyBlock.getInstance());
+        if (GriefPreventionPlus.getInstance().getDataStore() instanceof DataStoreMySQL){
+            return new DataStoreGPPMysql(GPPSkyBlock.getInstance());
+        }else {
+            return new DataStoreGPPYML(GPPSkyBlock.getInstance());
+        }
     }
 
     @Override

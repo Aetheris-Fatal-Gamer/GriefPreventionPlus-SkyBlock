@@ -1,8 +1,9 @@
-package br.com.finalcraft.gppskyblock.config.datastore;
+package br.com.finalcraft.gppskyblock.config.datastore.gd;
 
 import br.com.finalcraft.evernifecore.config.Config;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
+import br.com.finalcraft.gppskyblock.config.datastore.DataStore;
 import br.com.finalcraft.gppskyblock.integration.wrapper.griefdefender.WrGDClaim;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.api.claim.ClaimResult;

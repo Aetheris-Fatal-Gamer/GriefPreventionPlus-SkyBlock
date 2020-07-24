@@ -1,8 +1,9 @@
-package br.com.finalcraft.gppskyblock.config.datastore;
+package br.com.finalcraft.gppskyblock.config.datastore.gpp;
 
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.Utils;
+import br.com.finalcraft.gppskyblock.config.datastore.DataStore;
 import br.com.finalcraft.gppskyblock.integration.wrapper.griefpreventionplus.WrGPPClaim;
 import net.kaikk.mc.gpp.Claim;
 import net.kaikk.mc.gpp.ClaimResult;
@@ -23,11 +24,11 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-public class DataStoreGPP extends DataStore {
+public class DataStoreGPPMysql extends DataStore {
 
 	public String dbUrl, username, password;
 
-	public DataStoreGPP(GPPSkyBlock instance) throws Exception {
+	public DataStoreGPPMysql(GPPSkyBlock instance) throws Exception {
 		super(instance);
 		this.dbUrl = "jdbc:mysql://"+instance.config().dbHostname+"/"+instance.config().dbDatabase;
 		this.username = instance.config().dbUsername;
