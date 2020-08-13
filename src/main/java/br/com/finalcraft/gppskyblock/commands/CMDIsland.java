@@ -11,6 +11,8 @@ import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.PermissionNodes;
 import br.com.finalcraft.gppskyblock.Utils;
 import br.com.finalcraft.gppskyblock.bossshop.BSPHook;
+import br.com.finalcraft.gppskyblock.config.datastore.gpp.DataStoreGPPMysql;
+import br.com.finalcraft.gppskyblock.config.datastore.gpp.DataStoreGPPYML;
 import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
 import br.com.finalcraft.gppskyblock.integration.IClaim;
 import br.com.finalcraft.gppskyblock.tasks.SpawnTeleportTask;
@@ -32,7 +34,7 @@ public class CMDIsland implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         //  Passando os argumentos para um ArrayList
-        MultiArgumentos argumentos = FCBukkitUtil.parseBukkitArgsToMultiArgumentos(args);
+        MultiArgumentos argumentos = new MultiArgumentos(args, true);
 
         switch (argumentos.get(0).toLowerCase()){
             case "":
@@ -55,10 +57,16 @@ public class CMDIsland implements CommandExecutor {
                 return publicc(label,sender,argumentos);
             case "reset":
                 return reset(label,sender,argumentos);
+            case "hardreset":
+                return hardreset(label,sender,argumentos);
             case "delete":
                 return delete(label,sender,argumentos);
             case "setraio":
                 return setraio(label,sender,argumentos);
+            case "transfer":
+                return transfer(label,sender,argumentos);
+            case "convertdatabase":
+                return convertdatabase(label,sender,argumentos);
             case "reload":
                 return reload(label,sender,argumentos);
 
@@ -106,8 +114,16 @@ public class CMDIsland implements CommandExecutor {
             }
         }
 
-        if (sender.hasPermission("be.evernife")){
-            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " delete <Player>","§bDeleta a ilha de algum jogador!\n\nNá pratica nao deleta fisicamente, apenas remove o claim!\nFazendo com que ele tenha que criar uma nova ilha em outro lugar.","/" + label + " biomelist",true));
+        if (sender.hasPermission(PermissionNodes.COMMAND_DELETE_OTHER)){
+            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " delete <Player>","§bDeleta a ilha de algum jogador!\n\nNá pratica não deleta fisicamente na hora, apenas remove o claim!\n\nFazendo com que o jogador tenha que criar uma nova ilha em outro lugar.\n\nNota: A ilha (construção fisica) será deletada no próximo restart!","/" + label + " delete",true));
+        }
+
+        if (sender.hasPermission(PermissionNodes.COMMAND_TRANSFERISLAND_OTHER)){
+            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " transfer <oldOwner> <newOwner>","§bTransfere a ilha de um jogador para outro jogador!\n","/" + label + " transfer ",true));
+        }
+
+        if (sender.hasPermission(PermissionNodes.COMMAND_CONVERTDATABASE)){
+            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " convertdatabase","§bConverte o banco de dados de MYSQL para YML!\n","/" + label + " convertdatabase ",true));
         }
 
         sender.sendMessage("");
@@ -142,7 +158,7 @@ public class CMDIsland implements CommandExecutor {
                 return false;
             }
 
-            if (island.getClaim().canEnter(thePlayer)) {
+            if (!thePlayer.hasPermission(PermissionNodes.ADMIN_PERM) && island.getClaim().canEnter(thePlayer)) {
                 sender.sendMessage("§4§l ▶ §c Você não tem permissão para entrar nessa ilha!");
                 return false;
             }
@@ -389,12 +405,55 @@ public class CMDIsland implements CommandExecutor {
         }
 
         Cooldown cooldown = Cooldown.getOrCreateCooldown("GPPSkyBlock-ISRESET",player.getName());
-        if (cooldown.isInCooldown()){
+        if (!player.hasPermission(PermissionNodes.COMMAND_RESET_NOCOOLDOWN) && cooldown.isInCooldown()){
             cooldown.warnPlayer(sender);
             return true;
         }
         cooldown.setPermaCooldown(true);
         cooldown.startWith(259200);//3 Dias
+        island.reset();
+        return true;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    // Command hardreset
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    public boolean hardreset(String label, CommandSender sender, MultiArgumentos argumentos){
+
+        if (true){
+            sender.sendMessage("§4§l ▶ §cPeça para um ADM realizar um HardReset para vc!");
+            return true;
+        }
+
+        if (FCBukkitUtil.isNotPlayer(sender)){
+            return true;
+        }
+
+        Player player = (Player) sender;
+
+        Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
+
+        if (island == null) {
+            sender.sendMessage("§4§l ▶ §cVocê ainda não possui uma ilha nesse servidor! Para criar uma, use \"/"+label+" spawn\"");
+            return false;
+        }
+
+        String conf = confirmations.remove(player.getName());
+
+        if (conf == null || !conf.equals("hardreset")) {
+            sender.sendMessage("§4§l ▶ §c§lCUIDADO: §cSua ilha inteira será APAGADA!" +
+                    "\n§cSe você tem certeza disso, use \"/"+label+" hardreset\" novamente!\n\nVocê só poderá fazer isso 1 vez!");
+            this.confirmations.put(player.getName(), "hardreset");
+            return false;
+        }
+
+        Cooldown cooldown = Cooldown.getOrCreateCooldown("GPPSkyBlock-ISHARDRESET",player.getName());
+        if (cooldown.isInCooldown()){
+            cooldown.warnPlayer(sender);
+            return true;
+        }
+        cooldown.setPermaCooldown(true);
+        cooldown.startWith(86313600);//999 Dias
         island.reset();
         return true;
     }
@@ -425,12 +484,21 @@ public class CMDIsland implements CommandExecutor {
 
 
         if (!island.ready) {
-            if (!argumentos.getFlag("-force").isSet()){
+            if (!argumentos.getFlag("force").isSet()){
                 sender.sendMessage("§4§l ▶ §cExiste alguma operação pendente nessa ilha!");
+                FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " delete <Player> -force","§bDeleta a ilha de algum jogador!\n\nNá pratica não deleta fisicamente na hora, apenas remove o claim!\n\nFazendo com que o jogador tenha que criar uma nova ilha em outro lugar.\n\nNota: A ilha (construção fisica) será deletada no próximo restart!","/" + label + " delete",true));
                 return true;
             }else {
                 island.ready = true;
             }
+        }
+
+        if (sender instanceof Player && !argumentos.getFlag("confirm").isSet()){
+            FancyText.sendTo(sender,
+                    new FancyText("§c§l ▶ §cDeletar ilha do jogador: §e" + playerData.getPlayerName() + " §cVocê tem certeza? ").setHoverText("§bDeixa a sua ilha Pública!"),
+                    new FancyText("§c[§lConfirmar§c]","§bVai deletar memo irmão? Tem certeza?\n\nClica ai então...","/" + label + " delete " + playerData.getPlayerName() + " -confirm -force",false)
+            );
+            return true;
         }
 
         boolean isCancealed = GPPluginBase.getInstance().fireClaimDeleteEvent(island.getClaim(),(sender instanceof Player ? (Player) sender : null));
@@ -494,6 +562,124 @@ public class CMDIsland implements CommandExecutor {
         return true;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    // Command transfer
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    public boolean transfer(String label, CommandSender sender, MultiArgumentos argumentos){
+
+        if (!FCBukkitUtil.hasThePermission(sender,PermissionNodes.COMMAND_TRANSFERISLAND_OTHER)) {
+            return true;
+        }
+
+        PlayerData oldOwner = argumentos.get(1).getPlayerData();
+        PlayerData newOwner = argumentos.get(2).getPlayerData();
+
+        if (argumentos.get(1).isEmpty() || argumentos.get(2).isEmpty()){
+            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " transfer <oldOwner> <newOwner>","§bTransfere a ilha de um jogador para outro jogador!\n","/" + label + " transfer ",true));
+            return true;
+        }
+
+        if (oldOwner == null){
+            sender.sendMessage("§4§l ▶ §cNão existem nenhum jogador chamado [" + argumentos.get(1) + "] !");
+            return true;
+        }
+
+        if (newOwner == null){
+            sender.sendMessage("§4§l ▶ §cNão existem nenhum jogador chamado [" + argumentos.get(2) + "] !");
+            return true;
+        }
+
+        Island oldOwnerIsland = GPPSkyBlock.getInstance().getDataStore().getIsland(oldOwner.getUniqueId());
+        Island newOwnerIsland = GPPSkyBlock.getInstance().getDataStore().getIsland(newOwner.getUniqueId());
+
+        if (oldOwnerIsland == null) {
+            sender.sendMessage("§4§l ▶ §e" + oldOwner.getPlayerName() + "§c não possui uma ilha nesse servidor!");
+            return true;
+        }
+
+        if (newOwnerIsland != null) {
+            sender.sendMessage("§4§l ▶ §e" + newOwner.getPlayerName() + "§e já possui uma ilha nesse servidor! Delete a ilha dele antes de dar uma nova!");
+            return true;
+        }
+
+        if (!oldOwnerIsland.ready) {
+            sender.sendMessage("§4§l ▶ §cExiste alguma operação pendente nessa ilha! Transferencia bloqueada!");
+            return true;
+        }
+
+        try {
+            GPPSkyBlock.getInstance().getDataStore().removeIsland(oldOwnerIsland);                                      //Remove old Island!
+            GPPluginBase.getInstance().transferIsland(oldOwnerIsland, newOwner.getUniqueId());                          //Transfer the claim to the new owner!
+            Island newIsland = new Island(newOwner.getUniqueId(), oldOwnerIsland.getClaim(), oldOwnerIsland.getSpawn());//Create a new one as copy! Using same claim.
+            GPPSkyBlock.getInstance().getDataStore().removeIsland(newIsland);                                           //Add new one to database!
+        }catch (Exception e){
+            sender.sendMessage("§c§l ▶ §cFalha ao transferir ilha...: " + e.getMessage());
+            GPPSkyBlock.info("Failed to transfer island from [" + oldOwner.getPlayerName() + "] to [" + newOwner.getPlayerName());
+            e.printStackTrace();
+        }
+
+        sender.sendMessage("§2§l ▶ §aIlha transferida com sucesso do jogador [§e" + oldOwner.getPlayerName() + "§a] para o jogador [§e" + newOwner.getPlayerName() + "§a]!");
+        return true;
+    }
+
+
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    // Command convertdatabase
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    boolean converting = false;
+    public boolean convertdatabase(String label, CommandSender sender, MultiArgumentos argumentos){
+
+        if (!FCBukkitUtil.hasThePermission(sender,PermissionNodes.COMMAND_CONVERTDATABASE)){
+            return true;
+        }
+
+        if (!argumentos.getFlag("confirm").isSet()){
+            FancyText.sendTo(sender, new FancyText("§5§l ▶ §a§l[Clique para confirmar]","§bConverte o banco de dados de MYSQL para YML!\n","/" + label + " convertdatabase -confirm",false));
+            return true;
+        }
+
+        if (!(GPPSkyBlock.getInstance().getDataStore() instanceof DataStoreGPPMysql)){
+            sender.sendMessage("Você só pode converter de DataStoreGPPMysql para DataStoreGPPYML");
+            return true;
+        }
+
+        if (converting){
+            sender.sendMessage("Uma conversão já está em andamento!");
+            return true;
+        }
+
+        converting = true;
+        new Thread(){
+            @Override
+            public void run() {
+                try {
+                    DataStoreGPPYML dataStoreGPPYML = new DataStoreGPPYML(GPPSkyBlock.getInstance());
+                    int max = GPPSkyBlock.getInstance().getDataStore().islands.size();
+                    int current = 0;
+                    for (Island island : GPPSkyBlock.getInstance().getDataStore().islands.values()) {
+                        current++;
+                        try {
+                            dataStoreGPPYML.islands.put(island.getOwnerId(), island);
+                            dataStoreGPPYML.config.setValue("Islands." + island.getClaim().getID() + ".ownerUUID", island.getOwnerId());
+                            dataStoreGPPYML.config.setValue("Islands." + island.getClaim().getID() + ".spawnLocation", island.getSpawn());
+                            if (current % 10 == 0){
+                                sender.sendMessage("Island conversion [" + current + "/" + max + "] was converted.");
+                            }
+                        }catch (Exception e){
+                            sender.sendMessage("Failed to add island from" + island.getOwnerName());
+                            e.printStackTrace();
+                        }
+                    }
+                    dataStoreGPPYML.config.save();
+                }catch (Exception e){
+                    sender.sendMessage("Failed to create the DataStoreGPPYML");
+                    e.printStackTrace();
+                }
+                converting = false;
+            }
+        }.start();
+        return true;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------------------//
     // Command Reload

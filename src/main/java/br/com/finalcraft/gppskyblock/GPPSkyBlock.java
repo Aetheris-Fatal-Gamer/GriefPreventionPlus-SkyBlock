@@ -36,7 +36,9 @@ public class GPPSkyBlock extends JavaPlugin {
 			pluginBase.registerEventListeners();
 
 			CommandRegisterer.registerCommands(this);
-			PlaceHolderIntegration.initialize();
+			if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")){
+				PlaceHolderIntegration.initialize();
+			}
 			BSPHook.initiliaze(this);
 		} catch (Exception e) {
 			e.printStackTrace();

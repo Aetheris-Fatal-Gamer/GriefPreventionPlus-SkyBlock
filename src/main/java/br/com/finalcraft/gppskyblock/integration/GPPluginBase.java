@@ -8,6 +8,7 @@ import br.com.finalcraft.gppskyblock.integration.wrapper.griefpreventionplus.WrG
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.util.UUID;
 
 public abstract class GPPluginBase {
 
@@ -42,4 +43,7 @@ public abstract class GPPluginBase {
     public abstract void setRadius(Island island, int radius);
 
     public abstract void assyncRestoreIsland(Island island, File schematicFile);
+
+    public abstract void transferIsland(Island island, UUID newOwnerUUID);
+
 }

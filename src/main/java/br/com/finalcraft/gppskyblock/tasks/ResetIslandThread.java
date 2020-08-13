@@ -35,9 +35,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-public class ResetIslandThreadGD extends Thread {
+public class ResetIslandThread extends Thread {
 
-    private final ResetIslandThreadGD instance;
+    private final ResetIslandThread instance;
     private final Island island;
     private final String ownerName;
     private final IClaim claim;
@@ -48,7 +48,7 @@ public class ResetIslandThreadGD extends Thread {
     private final List<Runnable> bukkitBiomaChanger = new ArrayList<>();
     private final File schematic;
 
-    public ResetIslandThreadGD(Island island, File schematic) {
+    public ResetIslandThread(Island island, File schematic) {
         this.instance = this;
         this.island = island;
         this.ownerName = island.getOwnerName();

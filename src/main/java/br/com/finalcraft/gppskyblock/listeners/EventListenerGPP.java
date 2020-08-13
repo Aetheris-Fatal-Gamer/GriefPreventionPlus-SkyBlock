@@ -78,9 +78,9 @@ public class EventListenerGPP implements Listener {
 	
 	@EventHandler(ignoreCancelled=true) 
 	void onClaimResize(ClaimResizeEvent event) {
-		if (event.getPlayer()!=null && isIsland(event.getClaim())) {
+		if (event.getPlayer() != null && isIsland(event.getClaim())) {
 			event.setCancelled(true);
-			if (event.getPlayer()!=null) {
+			if (event.getPlayer() != null) {
 				event.getPlayer().sendMessage(ChatColor.RED+"Você não pode redefinir o tamanho dessa ilha. É uma ilha afinal das contas!");
 			}
 		}
@@ -116,12 +116,7 @@ public class EventListenerGPP implements Listener {
 	}
 	
 	boolean isIsland(Claim claim) {
-		Island island = getIsland(claim);
-		if (island == null) {
-			return false;
-		}
-		
-		return island.getClaim() == claim;
+		return getIsland(claim) != null;
 	}
 	
 	Island getIsland(Claim claim) {

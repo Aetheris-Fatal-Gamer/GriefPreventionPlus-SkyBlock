@@ -8,7 +8,7 @@ softdepend: [ PlaceholderAPI, BossShopPro, GriefPreventionPlus, GriefDefender ]
 commands:
   island:
       description: GPPSkyBlock main command
-      aliases: [is]
+      aliases: [is, gppskyblock]
 
 permissions:
   gppskyblock.spawn:

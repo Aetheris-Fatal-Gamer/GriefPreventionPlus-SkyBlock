@@ -61,7 +61,7 @@ public class DataStoreGPPYML extends DataStore {
 		Island island = new Island(uuid, new WrGPPClaim(result.getClaim()));
 		try {
 			this.addIsland(island);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			GriefPreventionPlus.getInstance().getDataStore().deleteClaim(result.getClaim());
 			throw new Exception("data store issue.");

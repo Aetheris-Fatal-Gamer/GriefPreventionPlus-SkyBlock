@@ -7,13 +7,14 @@ import br.com.finalcraft.gppskyblock.config.datastore.gd.DataStoreGD;
 import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
 import br.com.finalcraft.gppskyblock.integration.IClaim;
 import br.com.finalcraft.gppskyblock.listeners.EventListenerGD;
-import br.com.finalcraft.gppskyblock.tasks.ResetIslandThreadGD;
+import br.com.finalcraft.gppskyblock.tasks.ResetIslandThread;
 import com.griefdefender.api.GriefDefender;
 import com.griefdefender.claim.GDClaim;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.util.UUID;
 
 public class WrGDPluginBase extends GPPluginBase {
 
@@ -42,6 +43,13 @@ public class WrGDPluginBase extends GPPluginBase {
 
     @Override
     public void assyncRestoreIsland(Island island, File schematicFile) {
-        new ResetIslandThreadGD(island, schematicFile);
+        new ResetIslandThread(island, schematicFile);
+    }
+
+    @Override
+    public void transferIsland(Island island, UUID newOwnerUUID) {
+        WrGDClaim claimWrapper = (WrGDClaim) island.getClaim();
+        GDClaim claim = claimWrapper.claim;
+        claim.transferOwner(newOwnerUUID);
     }
 }

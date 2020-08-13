@@ -146,7 +146,7 @@ public class EventListenerGD implements Listener {
 			return null;
 		}
 		Island island = instance.getDataStore().getIsland(claim.getOwnerUniqueId());
-		if (island.getClaim() != claim) {
+		if (((GDClaim)island.getClaim()).getUniqueId().equals(claim.getUniqueId())) {
 			return island;
 		}
 		return null;

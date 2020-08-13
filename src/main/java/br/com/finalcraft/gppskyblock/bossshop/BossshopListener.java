@@ -10,9 +10,7 @@ class BossshopListener implements Listener {
 
 	@EventHandler
 	void onBossShopInventoryOpen(BSDisplayItemEvent event) {
-
-		if (event.getShopItem().getName().equalsIgnoreCase("IslandLock")){
-
+		if (event.getShopItem() != null && event.getShopItem().getName() != null && event.getShopItem().getName().equalsIgnoreCase("IslandLock")){
 			if (PlaceHolderIntegration.playersIslandIsPublic(event.getPlayer())) {
 				ItemStack itemStack = event.getShop().getItem("IslandLockPublic").getItem();
 				event.getShopItem().setItem(itemStack,true);

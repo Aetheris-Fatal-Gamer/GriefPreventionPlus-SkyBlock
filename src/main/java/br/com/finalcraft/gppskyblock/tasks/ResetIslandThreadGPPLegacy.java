@@ -40,9 +40,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-public class ResetIslandThreadGPP extends Thread {
+public class ResetIslandThreadGPPLegacy extends Thread {
 
-    private final ResetIslandThreadGPP instance;
+    private final ResetIslandThreadGPPLegacy instance;
     private final Island island;
     private final String ownerName;
     private final IClaim claim;
@@ -55,7 +55,7 @@ public class ResetIslandThreadGPP extends Thread {
     private final List<Runnable> bukkitBiomaChanger = new ArrayList<>();
     private final File schematic;
 
-    public ResetIslandThreadGPP(Island island, File schematic) {
+    public ResetIslandThreadGPPLegacy(Island island, File schematic) {
         this.instance = this;
         this.island = island;
         this.ownerName = island.getOwnerName();
