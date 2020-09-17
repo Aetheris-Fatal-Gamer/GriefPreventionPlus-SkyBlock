@@ -253,14 +253,14 @@ public class ResetIslandThread extends Thread {
                 }
             });
 
-            bringOwnerBack();
-
             new BukkitRunnable(){
                 @Override
                 public void run() {
                     changeBiomes();
                 }
-            }.runTaskLater(GPPSkyBlock.getInstance(),1000);
+            }.runTaskLater(GPPSkyBlock.getInstance(),1);
+
+            bringOwnerBack();
 
             if (failedChunks.get() > 0) {
                 GPPSkyBlock.debug("Aprentemente " + failedChunks.get() + " chunks falharam na restauração da ilha do jogador " + island.getOwnerName());

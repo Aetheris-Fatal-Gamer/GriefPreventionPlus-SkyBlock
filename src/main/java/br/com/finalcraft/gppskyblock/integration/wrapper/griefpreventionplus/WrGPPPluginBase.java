@@ -1,6 +1,5 @@
 package br.com.finalcraft.gppskyblock.integration.wrapper.griefpreventionplus;
 
-import br.com.finalcraft.evernifecore.version.MCVersion;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.config.datastore.DataStore;
@@ -10,7 +9,6 @@ import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
 import br.com.finalcraft.gppskyblock.integration.IClaim;
 import br.com.finalcraft.gppskyblock.listeners.EventListenerGPP;
 import br.com.finalcraft.gppskyblock.tasks.ResetIslandThread;
-import br.com.finalcraft.gppskyblock.tasks.ResetIslandThreadGPPLegacy;
 import net.kaikk.mc.gpp.Claim;
 import net.kaikk.mc.gpp.DataStoreMySQL;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
@@ -32,8 +30,10 @@ public class WrGPPPluginBase extends GPPluginBase {
     @Override
     public DataStore setupDataStore() throws Exception{
         if (GriefPreventionPlus.getInstance().getDataStore() instanceof DataStoreMySQL){
+            GPPSkyBlock.info("Using DataStoreGPP-MySQL");
             return new DataStoreGPPMysql(GPPSkyBlock.getInstance());
         }else {
+            GPPSkyBlock.info("Using DataStoreGPP-YML");
             return new DataStoreGPPYML(GPPSkyBlock.getInstance());
         }
     }
@@ -57,11 +57,7 @@ public class WrGPPPluginBase extends GPPluginBase {
 
     @Override
     public void assyncRestoreIsland(Island island, File schematicFile) {
-        if (MCVersion.isLegacy()){
-            new ResetIslandThreadGPPLegacy(island, schematicFile);
-        }else {
-            new ResetIslandThread(island, schematicFile);
-        }
+        new ResetIslandThread(island, schematicFile);
     }
 
     @Override

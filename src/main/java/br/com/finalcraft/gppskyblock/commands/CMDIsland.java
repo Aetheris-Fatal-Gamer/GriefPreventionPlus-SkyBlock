@@ -47,6 +47,8 @@ public class CMDIsland implements CommandExecutor {
                 return spawn(label,sender,argumentos);
             case "setspawn":
                 return setspawn(label,sender,argumentos);
+            case "invite":
+                return invite(label,sender,argumentos);
             case "biomelist":
                 return biomelist(label,sender,argumentos);
             case "setbiome":
@@ -98,6 +100,7 @@ public class CMDIsland implements CommandExecutor {
         FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " help","§bMostra essa mensagem!","/" + label + " help",true));
         FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " spawn [Player]","§bTeleporta para a sua ilha ou a de algum jogador!","/" + label + " spawn",true));
         FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " setspawn","§bAltera a localização do Spawn da sua ilha!","/" + label + " setspawn",true));
+        FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " invite","§bConvida alguem para MORAR na sua ilha (dando TRUST para ela)!","/" + label + " invite",true));
         FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " private","§bDeixa a sua ilha Privada!","/" + label + " private",true));
         FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " public","§bDeixa a sua ilha Pública!","/" + label + " public",true));
         FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " reset","§bReseta a sua ilha!(Apaga ela inteira!!!)","/" + label + " reset",true));
@@ -237,6 +240,18 @@ public class CMDIsland implements CommandExecutor {
         return true;
     }
 
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    // Command invite
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    public boolean invite(String label, CommandSender sender, MultiArgumentos argumentos){
+
+        if (FCBukkitUtil.isNotPlayer(sender)) {
+            return true;
+        }
+
+        sender.sendMessage("§aO comando invite foi desabilidade! Use o comando §e/TRUST §apara permitir que alguem more na sua casa!");
+        return true;
+    }
 
     // -----------------------------------------------------------------------------------------------------------------------------//
     // Command biomelist

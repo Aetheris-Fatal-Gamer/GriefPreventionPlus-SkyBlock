@@ -34,7 +34,7 @@ public class SBPlayerData extends PDSection {
     // Controller Section
     // -----------------------------------------------------------------------------------------------------------------------------//
 
-    public static SBPlayerData getOrCreateRUPlayerData(PlayerData playerData){
-        return playerData.getOrCreatePDSection(SBPlayerData.class);
+    public static SBPlayerData getPDSection(PlayerData playerData){
+        return playerData.getPDSection(SBPlayerData.class);
     }
 }
