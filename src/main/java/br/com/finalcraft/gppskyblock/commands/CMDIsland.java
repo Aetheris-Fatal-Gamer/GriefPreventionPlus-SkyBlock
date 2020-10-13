@@ -266,11 +266,6 @@ public class CMDIsland implements CommandExecutor {
             sb.append(ChatColor.RED+"Nenhuma");
         } else {
             for (Biome biome : GPPSkyBlock.getInstance().config().allowedBiomes) {
-
-                if(!sender.hasPermission("gppskyblock.setbiome."+biome.toString())) {
-                    continue;
-                }
-
                 sb.append(Utils.fromSnakeToCamelCase(biome.toString()));
                 sb.append(", ");
             }
