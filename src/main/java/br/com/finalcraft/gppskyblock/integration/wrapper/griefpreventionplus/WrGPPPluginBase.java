@@ -48,7 +48,7 @@ public class WrGPPPluginBase extends GPPluginBase {
         Location center = island.getCenter();
         int size = island.getClaim().getArea();
         WrGPPClaim claimWrapper = (WrGPPClaim) island.getClaim();
-        Claim claim = claimWrapper.claim;
+        Claim claim = claimWrapper.getClaim();
         GriefPreventionPlus.getInstance().getDataStore().resizeClaim(claim, center.getBlockX()-radius, center.getBlockZ()-radius, center.getBlockX()+radius, center.getBlockZ()+radius, null);
         PlayerData playerData = GriefPreventionPlus.getInstance().getDataStore().getPlayerData(island.getOwnerId());
         playerData.setBonusClaimBlocks(playerData.getBonusClaimBlocks()+(claim.getArea()-size));
@@ -63,7 +63,7 @@ public class WrGPPPluginBase extends GPPluginBase {
     @Override
     public void transferIsland(Island island, UUID newOwnerUUID) {
         WrGPPClaim claimWrapper = (WrGPPClaim) island.getClaim();
-        Claim claim = claimWrapper.claim;
+        Claim claim = claimWrapper.getClaim();
         try {
             GriefPreventionPlus.getInstance().getDataStore().changeClaimOwner(claim, newOwnerUUID);
         }catch (Exception e){
