@@ -2,6 +2,7 @@ package br.com.finalcraft.gppskyblock.listeners;
 
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
+import br.com.finalcraft.gppskyblock.integration.wrapper.griefpreventionplus.WrGPPClaim;
 import net.kaikk.mc.gpp.Claim;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
 import net.kaikk.mc.gpp.PlayerData;
@@ -14,8 +15,6 @@ import org.bukkit.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
@@ -124,7 +123,7 @@ public class EventListenerGPP implements Listener {
 			return null;
 		}
 		Island island = instance.getDataStore().getIsland(claim.getOwnerID());
-		if (island.getClaim() == claim) {
+		if (((WrGPPClaim)island.getClaim()).getClaim() == claim) {
 			return island;
 		}
 		return null;

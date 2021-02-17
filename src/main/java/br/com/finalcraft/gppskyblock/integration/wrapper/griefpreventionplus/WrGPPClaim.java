@@ -12,10 +12,14 @@ import java.util.UUID;
 
 public class WrGPPClaim implements IClaim {
 
-    public final Claim claim;
+    private final Claim claim;
 
     public WrGPPClaim(Claim claim) {
         this.claim = claim;
+    }
+
+    public Claim getClaim() {
+        return claim;
     }
 
     @Override

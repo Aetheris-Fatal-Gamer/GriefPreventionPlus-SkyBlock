@@ -13,7 +13,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import java.sql.SQLException;
 import java.util.UUID;
 
 public class DataStoreGPPYML extends DataStore {
@@ -73,7 +72,7 @@ public class DataStoreGPPYML extends DataStore {
 	}
 
 	@Override
-	public void addIsland(Island island) throws Exception {
+	public void addIsland(Island island) {
 		this.islands.put(island.getOwnerId(), island);
 		config.setValue("Islands." + island.getClaim().getID() + ".ownerUUID", island.getOwnerId());
 		config.setValue("Islands." + island.getClaim().getID() + ".spawnLocation", island.getSpawn());
@@ -81,14 +80,14 @@ public class DataStoreGPPYML extends DataStore {
 	}
 
 	@Override
-	public void removeIsland(Island island) throws Exception {
+	public void removeIsland(Island island) {
 		this.islands.remove(island.getOwnerId());
 		config.setValue("Islands." + island.getClaim().getID(), null);
 		config.save();
 	}
 
 	@Override
-	public void updateIsland(Island island) throws Exception {
+	public void updateIsland(Island island) {
 		config.setValue("Islands." + island.getClaim().getID() + ".ownerUUID", island.getOwnerId());
 		config.setValue("Islands." + island.getClaim().getID() + ".spawnLocation", island.getSpawn());
 		config.save();
