@@ -113,9 +113,16 @@ public class Utils {
 	}
 	
 	public static Biome matchAllowedBiome(String biomeName) {
-		biomeName = biomeName.toLowerCase();
+		String name01 = biomeName.replace(" ", "_"); //Magical Forest --> Magical_Forest
+		String name02 = biomeName.replace("", "_");  //Magical Forest --> MagicalForest
 		for (Biome biome : GPPSkyBlock.getInstance().config().allowedBiomes) {
-			if (biome.toString().replace("_", "").toLowerCase().equals(biomeName)) {
+			String nameReplaced = biome.name().replace("_", "");
+			if (biome.name().equalsIgnoreCase(name01)
+					|| biome.name().equalsIgnoreCase(name01)
+					|| biome.name().equalsIgnoreCase(name02)
+					|| nameReplaced.equalsIgnoreCase(biomeName)
+					|| nameReplaced.equalsIgnoreCase(name01)
+					|| nameReplaced.equalsIgnoreCase(name02)) {
 				return biome;
 			}
 		}
