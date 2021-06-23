@@ -54,8 +54,10 @@ public class CMDIsland implements CommandExecutor {
                 return biomelist(label,sender,argumentos);
             case "setbiomeother":
                 return setbiomeother(label,sender,argumentos);
-            case "setbiome":
-                return setbiome(label,sender,argumentos);
+            case "setbiomeisland":
+                return setbiomeisland(label,sender,argumentos);
+            case "setbiomechunk":
+                return setbiomechunk(label,sender,argumentos);
             case "private":
                 return privatec(label,sender,argumentos);
             case "public":
@@ -112,8 +114,9 @@ public class CMDIsland implements CommandExecutor {
             FancyText.sendTo(sender, new FancyText("§6§l ▶ §e/" + label + " setraio <Player> <Raio>","§bAltera o tamanho do raio da ilha!","/" + label + " setraio",true));
 
         if (sender.hasPermission(PermissionNodes.COMMAND_SETBIOME)) {
+            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomeisland <Bioma>","§bDefine o bioma de toda a sua ilha!","/" + label + " setbiome ",true));
+            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomechunk <Bioma>","§bDefine o bioma da chunk que você está dentro!","/" + label + " setbiomechunk ",true));
             FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " biomelist","§bMostra os possíveis biomas!","/" + label + " biomelist",true));
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiome <ISLAND|CHUNK> <Bioma>","§bDefine o bioma de toda a sua ilha!","/" + label + " setbiome ",true));
         }
 
         if (sender.hasPermission(PermissionNodes.COMMAND_SETBIOME_OTHER)){
@@ -320,27 +323,27 @@ public class CMDIsland implements CommandExecutor {
     }
 
     // -----------------------------------------------------------------------------------------------------------------------------//
-    // Command setbiome
+    // Command setbiomeisland
     // -----------------------------------------------------------------------------------------------------------------------------//
-    public boolean setbiome(String label, CommandSender sender, MultiArgumentos argumentos){
+    public boolean setbiomeisland(String label, CommandSender sender, MultiArgumentos argumentos){
 
         if ( !FCBukkitUtil.hasThePermission(sender,PermissionNodes.COMMAND_SETBIOME)){
             return true;
         }
 
-        if (argumentos.emptyArgs(1, 2) || !argumentos.get(1).match("ISLAND","CHUNK")){
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiome <ISLAND|CHUNK> <Bioma>","§bDefine o bioma de toda a sua ilha!","/" + label + " setbiome ",true));
+        if (argumentos.emptyArgs(1)){
+            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomeisland <Bioma>","§bDefine o bioma de toda a sua ilha!","/" + label + " setbiome ",true));
             return true;
         }
 
         PlayerData playerData = PlayerController.getPlayerData(sender.getName());
 
-        boolean changeEntireIsland = argumentos.get(1).match("ISLAND");
+        String biomeName = argumentos.joinStringArgs(1);
 
-        Biome biome = Utils.matchAllowedBiome(argumentos.getStringArg(2));
+        Biome biome = Utils.matchAllowedBiome(biomeName);
 
         if (biome == null) {
-            sender.sendMessage("§4§l ▶ §cNão existe nenhum bioma chamado §e" + argumentos.getStringArg(2) + ". Use §e/" + label + " biomelist");
+            sender.sendMessage("§4§l ▶ §cNão existe nenhum bioma chamado §e" + biomeName + ". Use §e/" + label + " biomelist");
             return true;
         }
 
@@ -361,23 +364,68 @@ public class CMDIsland implements CommandExecutor {
             cooldown.warnPlayer(sender);
             return true;
         }
+
+        island.setIslandBiome(biome);
         cooldown.setPermaCooldown(true);
+        cooldown.startWith(3600);
+        sender.sendMessage("§3§l ▶ §aBioma alterado! Você vai precisar deslogar e logar para ver a diferença!");
+        return true;
+    }
 
-        if (changeEntireIsland){
-            island.setIslandBiome(biome);
-            cooldown.startWith(86400);
-        }else {
-            Player player = playerData.getPlayer();
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    // Command setbiomechunk
+    // -----------------------------------------------------------------------------------------------------------------------------//
+    public boolean setbiomechunk(String label, CommandSender sender, MultiArgumentos argumentos){
 
-            if (!island.getClaim().contains(player.getLocation(), false)){
-                sender.sendMessage("§4§l ▶ §cVocê precisa estar dentro da sua ilha para fazer isso!");
-                return true;
-            }
-
-            Chunk chunk = player.getLocation().getChunk();
-            island.setChunkBiome(biome, chunk.getX(), chunk.getZ());
-            cooldown.startWith(3600);
+        if ( !FCBukkitUtil.hasThePermission(sender,PermissionNodes.COMMAND_SETBIOME)){
+            return true;
         }
+
+        if (argumentos.emptyArgs(1)){
+            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomechunk <Bioma>","§bDefine o bioma da chunk que você está dentro!","/" + label + " setbiomechunk ",true));
+            return true;
+        }
+
+        PlayerData playerData = PlayerController.getPlayerData(sender.getName());
+
+        String biomeName = argumentos.joinStringArgs(1);
+
+        Biome biome = Utils.matchAllowedBiome(biomeName);
+
+        if (biome == null) {
+            sender.sendMessage("§4§l ▶ §cNão existe nenhum bioma chamado §e" + biomeName + ". Use §e/" + label + " biomelist");
+            return true;
+        }
+
+        Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(playerData.getUniqueId());
+
+        if (island == null) {
+            sender.sendMessage("§4§l ▶ §e" + playerData.getPlayerName() + "§c não possui uma ilha nesse servidor!");
+            return false;
+        }
+
+        if (!island.ready) {
+            sender.sendMessage("§4§l ▶ §cExiste alguma operação pendente nessa ilha!");
+            return false;
+        }
+
+        Cooldown cooldown = Cooldown.getOrCreateCooldown("BIOME_ISLAND", playerData.getPlayerName());
+        if (cooldown.isInCooldown()){
+            cooldown.warnPlayer(sender);
+            return true;
+        }
+
+        Player player = playerData.getPlayer();
+
+        if (!island.getClaim().contains(player.getLocation(), false)){
+            sender.sendMessage("§4§l ▶ §cVocê precisa estar dentro da sua ilha para fazer isso!");
+            return true;
+        }
+
+        Chunk chunk = player.getLocation().getChunk();
+        island.setChunkBiome(biome, chunk.getX(), chunk.getZ());
+        cooldown.setPermaCooldown(true);
+        cooldown.startWith(60);
 
         sender.sendMessage("§3§l ▶ §aBioma alterado! Você vai precisar deslogar e logar para ver a diferença!");
         return true;
