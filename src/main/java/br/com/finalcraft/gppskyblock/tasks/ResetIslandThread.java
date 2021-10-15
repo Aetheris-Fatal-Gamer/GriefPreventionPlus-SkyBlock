@@ -1,6 +1,6 @@
 package br.com.finalcraft.gppskyblock.tasks;
 
-import br.com.finalcraft.evernifecore.util.FCWorldUtil;
+import br.com.finalcraft.evernifecore.util.FCLocationUtil;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.Utils;
@@ -70,7 +70,7 @@ public class ResetIslandThread extends Thread {
 
     private void fillSuppliers(){
         bukkitChunkSuppliers.clear();
-        List<Location> minAndMaxPoints = FCWorldUtil.getMinimumAndMaximumLocation(Arrays.asList(claim.getLesserBoundaryCorner(), claim.getGreaterBoundaryCorner()));
+        List<Location> minAndMaxPoints = FCLocationUtil.getMinimumAndMaximumLocation(Arrays.asList(claim.getLesserBoundaryCorner(), claim.getGreaterBoundaryCorner()));
         int lowerX = minAndMaxPoints.get(0).getBlockX()>>4;
         int lowerZ = minAndMaxPoints.get(0).getBlockZ()>>4;
         int upperX = minAndMaxPoints.get(1).getBlockX()>>4;

@@ -16,25 +16,8 @@ public class SBPlayerData extends PDSection {
     }
 
     @Override
-    public void save() {
-        //Code goes in here!
+    public void savePDSection() {
+
     }
 
-    @Override
-    public void saveIfRecentChanged() {
-        //Code goes in here!
-    }
-
-    @Override
-    public void loadUp() {
-        //Code goes in here!
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------------------//
-    // Controller Section
-    // -----------------------------------------------------------------------------------------------------------------------------//
-
-    public static SBPlayerData getPDSection(PlayerData playerData){
-        return playerData.getPDSection(SBPlayerData.class);
-    }
 }

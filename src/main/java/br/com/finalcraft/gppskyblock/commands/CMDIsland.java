@@ -359,14 +359,14 @@ public class CMDIsland implements CommandExecutor {
             return false;
         }
 
-        Cooldown cooldown = Cooldown.getOrCreateCooldown("BIOME_ISLAND", playerData.getPlayerName());
+        Cooldown cooldown = playerData.getCooldown("BIOME_ISLAND");
         if (cooldown.isInCooldown()){
             cooldown.warnPlayer(sender);
             return true;
         }
 
         island.setIslandBiome(biome);
-        cooldown.setPermaCooldown(true);
+        cooldown.setPersist(true);
         cooldown.startWith(3600);
         sender.sendMessage("§3§l ▶ §aBioma alterado! Você vai precisar deslogar e logar para ver a diferença!");
         return true;
@@ -409,7 +409,7 @@ public class CMDIsland implements CommandExecutor {
             return false;
         }
 
-        Cooldown cooldown = Cooldown.getOrCreateCooldown("BIOME_ISLAND", playerData.getPlayerName());
+        Cooldown cooldown = playerData.getCooldown("BIOME_ISLAND");
         if (cooldown.isInCooldown()){
             cooldown.warnPlayer(sender);
             return true;
@@ -424,7 +424,7 @@ public class CMDIsland implements CommandExecutor {
 
         Chunk chunk = player.getLocation().getChunk();
         island.setChunkBiome(biome, chunk.getX(), chunk.getZ());
-        cooldown.setPermaCooldown(true);
+        cooldown.setPersist(true);
         cooldown.startWith(60);
 
         sender.sendMessage("§3§l ▶ §aBioma alterado! Você vai precisar deslogar e logar para ver a diferença!");
@@ -517,12 +517,14 @@ public class CMDIsland implements CommandExecutor {
             return false;
         }
 
-        Cooldown cooldown = Cooldown.getOrCreateCooldown("GPPSkyBlock-ISRESET",player.getName());
+        PlayerData playerData = PlayerController.getPlayerData(player);
+
+        Cooldown cooldown = playerData.getCooldown("GPPSkyBlock-ISRESET");
         if (!player.hasPermission(PermissionNodes.COMMAND_RESET_NOCOOLDOWN) && cooldown.isInCooldown()){
             cooldown.warnPlayer(sender);
             return true;
         }
-        cooldown.setPermaCooldown(true);
+        cooldown.setPersist(true);
         cooldown.startWith(259200);//3 Dias
         island.reset();
         return true;
@@ -560,12 +562,14 @@ public class CMDIsland implements CommandExecutor {
             return false;
         }
 
-        Cooldown cooldown = Cooldown.getOrCreateCooldown("GPPSkyBlock-ISHARDRESET",player.getName());
+        PlayerData playerData = PlayerController.getPlayerData(player);
+
+        Cooldown cooldown = playerData.getCooldown("GPPSkyBlock-ISHARDRESET");
         if (cooldown.isInCooldown()){
             cooldown.warnPlayer(sender);
             return true;
         }
-        cooldown.setPermaCooldown(true);
+        cooldown.setPersist(true);
         cooldown.startWith(86313600);//999 Dias
         island.reset();
         return true;
