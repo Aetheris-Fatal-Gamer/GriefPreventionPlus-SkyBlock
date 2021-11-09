@@ -599,7 +599,6 @@ public class CMDIsland implements CommandExecutor {
             return true;
         }
 
-
         if (!island.ready) {
             if (!argumentos.getFlag("force").isSet()){
                 sender.sendMessage("§4§l ▶ §cExiste alguma operação pendente nessa ilha!");
@@ -618,8 +617,7 @@ public class CMDIsland implements CommandExecutor {
             return true;
         }
 
-        boolean isCancealed = GPPluginBase.getInstance().fireClaimDeleteEvent(island.getClaim(),(sender instanceof Player ? (Player) sender : null));
-        if (isCancealed) {
+        if (GPPluginBase.getInstance().deleteIslandClaim(island.getClaim(), (sender instanceof Player ? (Player) sender : null)) == false) {
             sender.sendMessage("§4§l ▶ §cEssa ilha não pode ser deletada!");
             return true;
         }

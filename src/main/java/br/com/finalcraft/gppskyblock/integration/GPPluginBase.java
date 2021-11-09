@@ -38,7 +38,7 @@ public abstract class GPPluginBase {
 
     public abstract void registerEventListeners() throws Exception;
 
-    public abstract boolean fireClaimDeleteEvent(IClaim iClaim, Player player);
+    public abstract boolean deleteIslandClaim(IClaim iClaim, Player player);
 
     public abstract void setRadius(Island island, int radius);
 

@@ -13,6 +13,7 @@ import net.kaikk.mc.gpp.Claim;
 import net.kaikk.mc.gpp.DataStoreMySQL;
 import net.kaikk.mc.gpp.GriefPreventionPlus;
 import net.kaikk.mc.gpp.PlayerData;
+import net.kaikk.mc.gpp.events.ClaimDeleteEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -23,8 +24,20 @@ import java.util.UUID;
 public class WrGPPPluginBase extends GPPluginBase {
 
     @Override
-    public boolean fireClaimDeleteEvent(IClaim iClaim, Player player) {
-        return false;
+    public boolean deleteIslandClaim(IClaim iClaim, Player player) {
+        final Claim claim = ((WrGPPClaim)iClaim).getClaim();
+
+        ClaimDeleteEvent event = new ClaimDeleteEvent(claim, player, ClaimDeleteEvent.Reason.DELETE);
+        GriefPreventionPlus.getInstance().getServer().getPluginManager().callEvent(event);
+        if (event.isCancelled()) {
+            return false;
+        }
+
+        claim.removeSurfaceFluids(null);
+        GriefPreventionPlus.addLogEntry(player != null ? player.getName() : "Console" + " deleted claim id " + claim.getID() + " at " + claim.locationToString());
+        GriefPreventionPlus.getInstance().getDataStore().deleteClaim(claim);
+
+        return true;
     }
 
     @Override

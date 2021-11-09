@@ -19,7 +19,8 @@ import java.util.UUID;
 public class WrGDPluginBase extends GPPluginBase {
 
     @Override
-    public boolean fireClaimDeleteEvent(IClaim iClaim, Player player) {
+    public boolean deleteIslandClaim(IClaim iClaim, Player player) {
+        //TODO Add GD Delete code
         return false;
     }
 
