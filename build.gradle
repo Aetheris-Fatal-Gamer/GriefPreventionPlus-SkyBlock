@@ -49,7 +49,7 @@ repositories {
         url = "http://files.minecraftforge.net/maven"
     }
     maven {
-        url = "https://maven.petrus.dev/releases"
+        url = "https://maven.petrus.dev/public"
     }
 }
 
