@@ -31,7 +31,7 @@ public abstract class GPPluginBase {
             return (instance = new WrGDPluginBase());
         }catch (Exception ignored){
         }
-        throw new RuntimeException("Nor GriefPreventionPlus or GriefDenfenrder were found!");
+        throw new RuntimeException("Nor GriefPreventionPlus or GriefDefender were found!");
     }
 
     public abstract DataStore setupDataStore() throws Exception;
