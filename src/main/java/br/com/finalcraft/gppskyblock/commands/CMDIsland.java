@@ -18,6 +18,7 @@ import br.com.finalcraft.gppskyblock.integration.IClaim;
 import br.com.finalcraft.gppskyblock.tasks.SpawnTeleportTask;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.block.Biome;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -236,7 +237,9 @@ public class CMDIsland implements CommandExecutor {
         }
 
         try {
-            island.setSpawn(thePlayer.getLocation().add(0, 2, 0));
+            Integer ycoord = Math.max(0, thePlayer.getLocation().getBlockY()) + 2;
+            Location spawnLoc = new Location(thePlayer.getWorld(), thePlayer.getLocation().getBlockX(),ycoord, thePlayer.getLocation().getBlockZ());
+            island.setSpawn(spawnLoc);
             sender.sendMessage("§3§l ▶ §aSpawn da ilha definido com sucesso!");
         } catch (Exception e) {
             e.printStackTrace();
