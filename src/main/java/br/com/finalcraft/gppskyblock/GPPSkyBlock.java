@@ -16,6 +16,7 @@ public class GPPSkyBlock extends JavaPlugin {
 	private static GPPSkyBlock instance;
 	private Config config;
 	private DataStore dataStore;
+	private GPPluginBase pluginBase;
 
 	public static void debug(String msg){
 		instance.getLogger().info("[Debug] " + msg.replace("&","§"));
@@ -29,10 +30,12 @@ public class GPPSkyBlock extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		config = new Config(this);
-		try {
-			GPPluginBase pluginBase = GPPluginBase.intialize();
 
-			dataStore = pluginBase.setupDataStore();
+		this.pluginBase = GPPluginBase.intialize();
+
+		try {
+			initializeDataStore();
+
 			pluginBase.registerEventListeners();
 
 			CommandRegisterer.registerCommands(this);
@@ -43,6 +46,10 @@ public class GPPSkyBlock extends JavaPlugin {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void initializeDataStore() throws Exception {
+		dataStore = this.pluginBase.setupDataStore();
 	}
 
 	public static GPPSkyBlock getInstance() {

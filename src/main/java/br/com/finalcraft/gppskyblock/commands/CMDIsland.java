@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class CMDIsland implements CommandExecutor {
 
@@ -807,7 +808,13 @@ public class CMDIsland implements CommandExecutor {
         if ( !FCBukkitUtil.hasThePermission(sender,PermissionNodes.COMMAND_RELOAD)){
             return true;
         }
-        sender.sendMessage("§aEsse plugin não pode ser recarregado!");
+
+        try {
+            GPPSkyBlock.getInstance().initializeDataStore();
+            sender.sendMessage("§aReload Success!");
+        }catch (Exception e){
+            sender.sendMessage("§cFailed to reload: " + e.getMessage());
+        }
         return true;
     }
 }
