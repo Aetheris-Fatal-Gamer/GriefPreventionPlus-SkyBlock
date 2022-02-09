@@ -14,6 +14,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
 
     protected final int INFO = 4;
     protected final int TP_ISLAND_SPAWN = 10;
-    protected final int PUBLIC = 11;
+    protected final int PUBLIC = 13;
     protected final int SET_ISLAND_SPAWN = 19;
     protected final int RESET = 16;
 
@@ -41,17 +42,18 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
 
         drawnBackground(getGui());
 
+        Material CUSTOM_ICON = Material.matchMaterial("EVERPOKEUTILS_CUSTOMICON");
         gui.setItem(INFO,
-                ItemBuilder.from(Material.getMaterial("EVERPOKEUTILS_CUSTOMICON"))
-                        .durability(12)
+                ItemBuilder.from(CUSTOM_ICON != null ? CUSTOM_ICON : Material.PAPER)
+                        .durability(CUSTOM_ICON != null ? 12 : 0)
                         .name("§a§l✞ §7§lCartaz§a§l ✞")
                         .lore(
                                 "§7§m--------§7§l< §a§lBoletim Informativo §7§l>§7§m------ --",
                                 "",
                                 "§2  ♠ §7Existem §a%gppskyblock_total_ilhas% §7ilhas nesse Servidor",
                                 "",
-                                "§2  §l[Clique Aqui]§2 para ver a lista de todos os",
-                                "§2   §2comandos de ilhas e suas respectivas funções!",
+                                "§2   §l[Clique Aqui]§2 para ver a lista de todos os",
+                                "§2  §2comandos de ilhas e suas respectivas funções!",
                                 "",
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------"
                         )
@@ -76,8 +78,13 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
 
         GuiItem lockGuiItem = getLockItem(isPublic);
         lockGuiItem.setAction(event -> {
-            FCBukkitUtil.makePlayerExecuteCommand(player, "is " + (isPublic ? "private" : "public"));
-            gui.updateItem(PUBLIC, lockGuiItem.getItemStack());//Only update the ItemStack of the previous GuiItem
+            Island theIsland = getPlayerData().getIsland();
+            boolean publicState =  theIsland != null && theIsland.getClaim().isPublicEntryTrust();
+
+            FCBukkitUtil.makePlayerExecuteCommand(player, "is " + (publicState ? "private" : "public"));
+
+            publicState =  theIsland != null && theIsland.getClaim().isPublicEntryTrust(); //Check again after the command being executed
+            gui.updateItem(PUBLIC, getLockItem(publicState).getItemStack());//Only update the ItemStack of the previous GuiItem
         });
 
         gui.setItem(PUBLIC,
@@ -90,7 +97,8 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
                         .lore(
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
                                 "",
-                                "§6  Redefine o spawn da sua ilha para a sua posição atual!",
+                                "§6    Redefine o spawn da sua ilha para a sua",
+                                "§6    posição atual!",
                                 "",
                                 "",
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------"
@@ -121,16 +129,19 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
     }
 
     private GuiItem getLockItem(boolean isPublic){
-        List<String> lorelines = Arrays.asList(
-                "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
-                ""
+        List<String> lorelines = new ArrayList<>();
+        lorelines.addAll(
+                Arrays.asList(
+                        "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
+                        ""
+                )
         );
         if (isPublic){
             lorelines.addAll(
                     Arrays.asList(
                             "§e  ◆ Sua ilha está §2§lPublica",
                             "",
-                            "§7Ou seja, qualquer um pode entrar nela!",
+                            "§7 Ou seja, qualquer um pode entrar nela!",
                             "",
                             "§9   §l[Clique Aqui] §9para torná-la privada!"
                     )
@@ -140,7 +151,8 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
                     Arrays.asList(
                             "§e  ◆ Sua ilha está §9§lPrivada!",
                             "",
-                            "§7Ou seja, apenas jogadores com §n/entrytrust§7 podem entrar nela!",
+                            "§7 Ou seja, apenas jogadores com §n/entrytrust§7 podem entrar nela!",
+                            "§7 podem entrar nela!",
                             "",
                             "§2   §l[Clique Aqui] §2para torná-la publica!"
                     )
@@ -163,9 +175,8 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
     }
 
     private void drawnBackground(final Gui gui){
-        Arrays.asList(0,1,9, 7,8,17, 36,45,46, 45,52,53).forEach(slot -> gui.setItem(slot, EnumStainedGlassPane.BLACK.asBackground()));
-        Arrays.asList(10,11,12,13,14,15,16,19,25).forEach(slot -> gui.setItem(slot, EnumStainedGlassPane.PURPLE.asBackground()));
-        Arrays.asList(2,3,5,6, 18,27,28,37, 26,34,35,43, 47,48,50,51).forEach(slot -> gui.setItem(slot, EnumStainedGlassPane.WHITE.asBackground()));
+        Arrays.asList(0,1,9, 7,8,17, 36,45,46, 49, 44,52,53).forEach(slot -> gui.setItem(slot, EnumStainedGlassPane.BLACK.asBackground()));
+        Arrays.asList(2,3,5,6, 18,27, 26,35, 47,48,50,51).forEach(slot -> gui.setItem(slot, EnumStainedGlassPane.WHITE.asBackground()));
     }
 
 }

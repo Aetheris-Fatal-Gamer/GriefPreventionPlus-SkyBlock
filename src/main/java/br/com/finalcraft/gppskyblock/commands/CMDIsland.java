@@ -97,7 +97,7 @@ public class CMDIsland implements CommandExecutor {
     // -----------------------------------------------------------------------------------------------------------------------------//
     public boolean help(String label, CommandSender sender, MultiArgumentos argumentos){
 
-        if (argumentos.get(0).isEmpty() && sender instanceof Player && ServerType.isEverNifePersonalServer()){
+        if (argumentos.get(0).isEmpty() && sender instanceof Player){
             Player player = (Player) sender;
             IslandPlayerGUI playerGUI = new IslandPlayerGUI(player, GPPSkyBlock.getInstance().getIsland(player.getUniqueId()));
             playerGUI.open();
