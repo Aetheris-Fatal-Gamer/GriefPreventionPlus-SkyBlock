@@ -5,16 +5,9 @@ buildscript {
             dirs 'libs'
         }
         maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
-        maven {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
@@ -22,7 +15,6 @@ group 'br.com.finalcraft'
 version '2.0.2a'
 
 apply plugin: 'java'
-apply plugin: 'forge'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -36,6 +28,7 @@ tasks.withType(JavaCompile) {
 repositories {
     flatDir {
         dirs 'libs'
+        dirs 'libs/griefdefenderlibs'
         dirs 'C:/Users/Petrus/Desktop/Meus/workshop/workshop/PublicLibs/Bukkit'
         dirs 'C:/Users/Petrus/Desktop/Meus/workshop/workshop/PublicLibs'
     }
@@ -45,29 +38,24 @@ repositories {
         url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
     }
     maven {
-        name = "forge"
-        url = "http://files.minecraftforge.net/maven"
-    }
-    maven {
         url = "https://maven.petrus.dev/public"
     }
 }
 
 
-minecraft {
-    version = "1.7.10-10.13.4.1614-1.7.10"
-    mappings = "stable_12"
-}
-
 dependencies {
 
     compile "br.com.finalcraft:EverNifeCore:2.0.1"
 
-    compileOnly name: "BossShopPro-v1.9.8"//This was a paid plugin
     compileOnly name: "griefdefender-1.4.4"
+    compile fileTree(dir: "libs/griefdefenderlibs/", includes: ['*.jar'])
+
     compileOnly name: "GriefPreventionPlus-13.4"
     compileOnly name: "PlaceholderAPI"
     compileOnly name: "worldedit-bukkit-6.1.7-SNAPSHOT-dist"
 
     compile 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+
+    //Annotations
+    compile 'org.jetbrains:annotations:23.0.0'
 }

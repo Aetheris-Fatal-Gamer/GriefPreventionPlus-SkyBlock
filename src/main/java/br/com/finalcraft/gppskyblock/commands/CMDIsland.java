@@ -5,14 +5,16 @@ import br.com.finalcraft.evernifecore.config.playerdata.PlayerController;
 import br.com.finalcraft.evernifecore.config.playerdata.PlayerData;
 import br.com.finalcraft.evernifecore.cooldown.Cooldown;
 import br.com.finalcraft.evernifecore.fancytext.FancyText;
+import br.com.finalcraft.evernifecore.integration.everforgelib.EverForgeLibIntegration;
 import br.com.finalcraft.evernifecore.util.FCBukkitUtil;
+import br.com.finalcraft.evernifecore.version.ServerType;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.PermissionNodes;
 import br.com.finalcraft.gppskyblock.Utils;
-import br.com.finalcraft.gppskyblock.bossshop.BSPHook;
 import br.com.finalcraft.gppskyblock.config.datastore.gpp.DataStoreGPPMysql;
 import br.com.finalcraft.gppskyblock.config.datastore.gpp.DataStoreGPPYML;
+import br.com.finalcraft.gppskyblock.gui.IslandPlayerGUI;
 import br.com.finalcraft.gppskyblock.integration.GPPluginBase;
 import br.com.finalcraft.gppskyblock.integration.IClaim;
 import br.com.finalcraft.gppskyblock.tasks.SpawnTeleportTask;
@@ -27,7 +29,6 @@ import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 public class CMDIsland implements CommandExecutor {
 
@@ -96,9 +97,10 @@ public class CMDIsland implements CommandExecutor {
     // -----------------------------------------------------------------------------------------------------------------------------//
     public boolean help(String label, CommandSender sender, MultiArgumentos argumentos){
 
-        if (argumentos.get(0).isEmpty() && sender instanceof Player && BSPHook.isEnabled()){
+        if (argumentos.get(0).isEmpty() && sender instanceof Player && ServerType.isEverNifePersonalServer()){
             Player player = (Player) sender;
-            BSPHook.openShop(player,"islands");
+            IslandPlayerGUI playerGUI = new IslandPlayerGUI(player, GPPSkyBlock.getInstance().getIsland(player.getUniqueId()));
+            playerGUI.open();
             return true;
         }
 

@@ -1,6 +1,5 @@
 package br.com.finalcraft.gppskyblock;
 
-import br.com.finalcraft.gppskyblock.bossshop.BSPHook;
 import br.com.finalcraft.gppskyblock.commands.CommandRegisterer;
 import br.com.finalcraft.gppskyblock.config.Config;
 import br.com.finalcraft.gppskyblock.config.datastore.DataStore;
@@ -42,7 +41,6 @@ public class GPPSkyBlock extends JavaPlugin {
 			if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")){
 				PlaceHolderIntegration.initialize();
 			}
-			BSPHook.initiliaze(this);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
