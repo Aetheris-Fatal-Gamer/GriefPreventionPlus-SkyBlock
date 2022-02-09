@@ -33,7 +33,7 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
 
     public IslandPlayerGUI(Player player, @Nullable Island island) {
         super(PlayerController.getPDSection(player, SBPlayerData.class), Gui.gui()
-                .title("➲  &0&lSkyBlock Islands")
+                .title("➲  §0§lSkyBlock Islands")
                 .rows(6)
                 .disableAllInteractions()
                 .create());
