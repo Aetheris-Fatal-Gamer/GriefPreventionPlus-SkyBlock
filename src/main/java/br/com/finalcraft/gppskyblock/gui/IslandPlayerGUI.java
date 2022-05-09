@@ -3,11 +3,11 @@ package br.com.finalcraft.gppskyblock.gui;
 import br.com.finalcraft.evernifecore.config.playerdata.PlayerController;
 import br.com.finalcraft.evernifecore.gui.PlayerGui;
 import br.com.finalcraft.evernifecore.gui.util.EnumStainedGlassPane;
+import br.com.finalcraft.evernifecore.itemstack.FCItemFactory;
 import br.com.finalcraft.evernifecore.placeholder.replacer.RegexReplacer;
 import br.com.finalcraft.evernifecore.util.FCBukkitUtil;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.config.playerdata.SBPlayerData;
-import dev.triumphteam.gui.builder.item.ItemBuilder;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import org.bukkit.Material;
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
+public class IslandPlayerGUI extends PlayerGui<SBPlayerData, Gui> {
 
     protected final int INFO = 4;
     protected final int TP_ISLAND_SPAWN = 10;
@@ -43,9 +43,9 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
         drawnBackground(getGui());
 
         Material CUSTOM_ICON = Material.matchMaterial("EVERPOKEUTILS_CUSTOMICON");
-        gui.setItem(INFO,
-                ItemBuilder.from(CUSTOM_ICON != null ? CUSTOM_ICON : Material.PAPER)
-                        .durability(CUSTOM_ICON != null ? 12 : 0)
+        getGui().setItem(INFO,
+                FCItemFactory.from(Material.PAPER)
+                        .applyIf(() -> CUSTOM_ICON != null, builder -> builder.material(CUSTOM_ICON).durability(12))
                         .name("§a§l✞ §7§lCartaz§a§l ✞")
                         .lore(
                                 "§7§m--------§7§l< §a§lBoletim Informativo §7§l>§7§m------ --",
@@ -61,8 +61,8 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
                         .setAction(event -> FCBukkitUtil.makePlayerExecuteCommand(player, "is help"))
         );
 
-        gui.setItem(TP_ISLAND_SPAWN,
-                ItemBuilder.from(Material.getMaterial("BED"))
+        getGui().setItem(TP_ISLAND_SPAWN,
+                FCItemFactory.from("BED")
                         .name("§b§l☀ §a§lIsland Spawn")
                         .lore(
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
@@ -84,15 +84,15 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
             FCBukkitUtil.makePlayerExecuteCommand(player, "is " + (publicState ? "private" : "public"));
 
             publicState =  theIsland != null && theIsland.getClaim().isPublicEntryTrust(); //Check again after the command being executed
-            gui.updateItem(PUBLIC, getLockItem(publicState).getItemStack());//Only update the ItemStack of the previous GuiItem
+            getGui().updateItem(PUBLIC, getLockItem(publicState).getItemStack());//Only update the ItemStack of the previous GuiItem
         });
 
-        gui.setItem(PUBLIC,
+        getGui().setItem(PUBLIC,
                 lockGuiItem
         );
 
-        gui.setItem(SET_ISLAND_SPAWN,
-                ItemBuilder.from(Material.getMaterial("COMPASS"))
+        getGui().setItem(SET_ISLAND_SPAWN,
+                FCItemFactory.from("COMPASS")
                         .name("§b§l☀ §a§lRedefine Spawn")
                         .lore(
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
@@ -107,8 +107,8 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
                         .setAction(event -> FCBukkitUtil.makePlayerExecuteCommand(player, "is setspawn"))
         );
 
-        gui.setItem(RESET,
-                ItemBuilder.from(Material.getMaterial("COMPASS"))
+        getGui().setItem(RESET,
+                FCItemFactory.from(Material.getMaterial("COMPASS"))
                         .name("§b§l☀ §a§lRedefine Spawn")
                         .lore(
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
@@ -165,7 +165,7 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData> {
                 )
         );
 
-        GuiItem lockGuiItem = ItemBuilder.from(Material.getMaterial("INK_SACK"))
+        GuiItem lockGuiItem = FCItemFactory.from("INK_SACK")
                 .durability(isPublic ? 10 : 8)
                 .name("§b§l☀ §a§lIsland Lock")
                 .lore(lorelines)

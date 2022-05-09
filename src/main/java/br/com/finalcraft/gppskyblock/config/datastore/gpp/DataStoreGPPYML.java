@@ -26,7 +26,7 @@ public class DataStoreGPPYML extends DataStore {
 
 			UUID ownerUUID = config.getUUID("Islands." + claimID + ".ownerUUID");
 			Integer claimIDInt = Integer.parseInt(claimID);
-			Location spawnLocation = config.getLocation("Islands." + claimID + ".spawnLocation");
+			Location spawnLocation = config.getLoadable("Islands." + claimID + ".spawnLocation", Location.class);
 
 			Claim claim = GriefPreventionPlus.getInstance().getDataStore().getClaim(claimIDInt);
 			islands.put(ownerUUID, new Island(ownerUUID, new WrGPPClaim(claim), spawnLocation));

@@ -25,7 +25,7 @@ public class DataStoreGD extends DataStore {
 
 			UUID ownerUUID = config.getUUID("Islands." + claimUUIDString + ".ownerUUID");
 			UUID claimUUID = UUID.fromString(claimUUIDString);
-			Location spawnLocation = config.getLocation("Islands." + claimUUIDString + ".spawnLocation");
+			Location spawnLocation = config.getLoadable("Islands." + claimUUIDString + ".spawnLocation", Location.class);
 
 			Island island = new Island(ownerUUID,new WrGDClaim((GDClaim) GriefDefender.getCore().getClaim(claimUUID)), spawnLocation);
 			islands.put(ownerUUID, island);
