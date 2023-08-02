@@ -1,6 +1,8 @@
 package br.com.finalcraft.gppskyblock.tasks;
 
-import br.com.finalcraft.evernifecore.util.FCLocationUtil;
+import br.com.finalcraft.evernifecore.minecraft.vector.BlockPos;
+import br.com.finalcraft.evernifecore.util.FCPosUtil;
+import br.com.finalcraft.evernifecore.util.commons.MinMax;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.Utils;
@@ -18,7 +20,6 @@ import com.sk89q.worldedit.world.registry.LegacyWorldData;
 import com.sk89q.worldedit.world.registry.WorldData;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Entity;
@@ -70,11 +71,11 @@ public class ResetIslandThread extends Thread {
 
     private void fillSuppliers(){
         bukkitChunkSuppliers.clear();
-        List<Location> minAndMaxPoints = FCLocationUtil.getMinimumAndMaximumLocation(Arrays.asList(claim.getLesserBoundaryCorner(), claim.getGreaterBoundaryCorner()));
-        int lowerX = minAndMaxPoints.get(0).getBlockX()>>4;
-        int lowerZ = minAndMaxPoints.get(0).getBlockZ()>>4;
-        int upperX = minAndMaxPoints.get(1).getBlockX()>>4;
-        int upperZ = minAndMaxPoints.get(1).getBlockZ()>>4;
+        MinMax<BlockPos> minAndMaxPoints = FCPosUtil.getMinimumAndMaximum(Arrays.asList(BlockPos.from(claim.getLesserBoundaryCorner()), BlockPos.from(claim.getGreaterBoundaryCorner())));
+        int lowerX = minAndMaxPoints.getMin().getX() >> 4;
+        int lowerZ = minAndMaxPoints.getMin().getZ() >> 4;
+        int upperX = minAndMaxPoints.getMax().getX() >> 4;
+        int upperZ = minAndMaxPoints.getMax().getZ() >> 4;
         for (; lowerX <= upperX; lowerX++) {
             for (int z = lowerZ; z <= upperZ; z++) {
                 final int chunkXCoord = lowerX;

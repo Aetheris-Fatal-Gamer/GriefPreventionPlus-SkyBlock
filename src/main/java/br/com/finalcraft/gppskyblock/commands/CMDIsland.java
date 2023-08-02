@@ -4,6 +4,7 @@ import br.com.finalcraft.evernifecore.argumento.MultiArgumentos;
 import br.com.finalcraft.evernifecore.config.playerdata.PlayerController;
 import br.com.finalcraft.evernifecore.config.playerdata.PlayerData;
 import br.com.finalcraft.evernifecore.cooldown.Cooldown;
+import br.com.finalcraft.evernifecore.fancytext.FancyFormatter;
 import br.com.finalcraft.evernifecore.fancytext.FancyText;
 import br.com.finalcraft.evernifecore.util.FCBukkitUtil;
 import br.com.finalcraft.evernifecore.version.ServerType;
@@ -105,37 +106,37 @@ public class CMDIsland implements CommandExecutor {
 
         sender.sendMessage("§6§m------------§6(  §a§lGPPSkyBlock§e  §6)§m------------");
 
-        FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " help","§bMostra essa mensagem!","/" + label + " help",true));
-        FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " spawn [Player]","§bTeleporta para a sua ilha ou a de algum jogador!","/" + label + " spawn",true));
-        FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " setspawn","§bAltera a localização do Spawn da sua ilha!","/" + label + " setspawn",true));
-        FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " invite","§bConvida alguem para MORAR na sua ilha (dando TRUST para ela)!","/" + label + " invite",true));
-        FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " private","§bDeixa a sua ilha Privada!","/" + label + " private",true));
-        FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " public","§bDeixa a sua ilha Pública!","/" + label + " public",true));
-        FancyText.sendTo(sender, new FancyText("§3§l ▶ §a/" + label + " reset","§bReseta a sua ilha!(Apaga ela inteira!!!)","/" + label + " reset",true));
+        FancyText.of("§3§l ▶ §a/" + label + " help","§bMostra essa mensagem!","/" + label + " help").send(sender);
+        FancyText.of("§3§l ▶ §a/" + label + " spawn [Player]","§bTeleporta para a sua ilha ou a de algum jogador!","/" + label + " spawn").send(sender);
+        FancyText.of("§3§l ▶ §a/" + label + " setspawn","§bAltera a localização do Spawn da sua ilha!","/" + label + " setspawn").send(sender);
+        FancyText.of("§3§l ▶ §a/" + label + " invite","§bConvida alguem para MORAR na sua ilha (dando TRUST para ela)!","/" + label + " invite").send(sender);
+        FancyText.of("§3§l ▶ §a/" + label + " private","§bDeixa a sua ilha Privada!","/" + label + " private").send(sender);
+        FancyText.of("§3§l ▶ §a/" + label + " public","§bDeixa a sua ilha Pública!","/" + label + " public").send(sender);
+        FancyText.of("§3§l ▶ §a/" + label + " reset","§bReseta a sua ilha!(Apaga ela inteira!!!)","/" + label + " reset").send(sender);
 
         if (sender.hasPermission(PermissionNodes.COMMAND_SETRADIUS))
-            FancyText.sendTo(sender, new FancyText("§6§l ▶ §e/" + label + " setraio <Player> <Raio>","§bAltera o tamanho do raio da ilha!","/" + label + " setraio",true));
+            FancyText.of("§6§l ▶ §e/" + label + " setraio <Player> <Raio>","§bAltera o tamanho do raio da ilha!","/" + label + " setraio").send(sender);
 
         if (sender.hasPermission(PermissionNodes.COMMAND_SETBIOME)) {
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomeisland <Bioma>","§bDefine o bioma de toda a sua ilha!","/" + label + " setbiome ",true));
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomechunk <Bioma>","§bDefine o bioma da chunk que você está dentro!","/" + label + " setbiomechunk ",true));
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " biomelist","§bMostra os possíveis biomas!","/" + label + " biomelist",true));
+            FancyText.of("§3§l ▶ §b/" + label + " setbiomeisland <Bioma>","§bDefine o bioma de toda a sua ilha!","/" + label + " setbiome ").send(sender);
+            FancyText.of("§3§l ▶ §b/" + label + " setbiomechunk <Bioma>","§bDefine o bioma da chunk que você está dentro!","/" + label + " setbiomechunk ").send(sender);
+            FancyText.of("§3§l ▶ §b/" + label + " biomelist","§bMostra os possíveis biomas!","/" + label + " biomelist").send(sender);
         }
 
         if (sender.hasPermission(PermissionNodes.COMMAND_SETBIOME_OTHER)){
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomeother <Player> <Bioma>","§bDefine o bioma de toda a ilha de um jogador!","/" + label + " setbiome ",true));
+            FancyText.of("§3§l ▶ §b/" + label + " setbiomeother <Player> <Bioma>","§bDefine o bioma de toda a ilha de um jogador!","/" + label + " setbiome ").send(sender);
         }
 
         if (sender.hasPermission(PermissionNodes.COMMAND_DELETE_OTHER)){
-            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " delete <Player>","§bDeleta a ilha de algum jogador!\n\nNá pratica não deleta fisicamente na hora, apenas remove o claim!\n\nFazendo com que o jogador tenha que criar uma nova ilha em outro lugar.\n\nNota: A ilha (construção fisica) será deletada no próximo restart!","/" + label + " delete",true));
+            FancyText.of("§5§l ▶ §6/" + label + " delete <Player>","§bDeleta a ilha de algum jogador!\n\nNá pratica não deleta fisicamente na hora, apenas remove o claim!\n\nFazendo com que o jogador tenha que criar uma nova ilha em outro lugar.\n\nNota: A ilha (construção fisica) será deletada no próximo restart!","/" + label + " delete").send(sender);
         }
 
         if (sender.hasPermission(PermissionNodes.COMMAND_TRANSFERISLAND_OTHER)){
-            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " transfer <oldOwner> <newOwner>","§bTransfere a ilha de um jogador para outro jogador!\n","/" + label + " transfer ",true));
+            FancyText.of("§5§l ▶ §6/" + label + " transfer <oldOwner> <newOwner>","§bTransfere a ilha de um jogador para outro jogador!\n","/" + label + " transfer ").send(sender);
         }
 
         if (sender.hasPermission(PermissionNodes.COMMAND_CONVERTDATABASE)){
-            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " convertdatabase","§bConverte o banco de dados de MYSQL para YML!\n","/" + label + " convertdatabase ",true));
+            FancyText.of("§5§l ▶ §6/" + label + " convertdatabase","§bConverte o banco de dados de MYSQL para YML!\n","/" + label + " convertdatabase ").send(sender);
         }
 
         sender.sendMessage("");
@@ -293,7 +294,7 @@ public class CMDIsland implements CommandExecutor {
         }
 
         if (argumentos.emptyArgs(1, 2)) {
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomeother <Player> <Bioma>", "§bDefine o bioma de toda a ilha de um jogador!", "/" + label + " setbiome ", true));
+            FancyText.of("§3§l ▶ §b/" + label + " setbiomeother <Player> <Bioma>", "§bDefine o bioma de toda a ilha de um jogador!", "/" + label + " setbiome ").send(sender);
             return true;
         }
 
@@ -337,7 +338,7 @@ public class CMDIsland implements CommandExecutor {
         }
 
         if (argumentos.emptyArgs(1)){
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomeisland <Bioma>","§bDefine o bioma de toda a sua ilha!","/" + label + " setbiome ",true));
+            FancyText.of("§3§l ▶ §b/" + label + " setbiomeisland <Bioma>","§bDefine o bioma de toda a sua ilha!","/" + label + " setbiome ").send(sender);
             return true;
         }
 
@@ -387,7 +388,7 @@ public class CMDIsland implements CommandExecutor {
         }
 
         if (argumentos.emptyArgs(1)){
-            FancyText.sendTo(sender, new FancyText("§3§l ▶ §b/" + label + " setbiomechunk <Bioma>","§bDefine o bioma da chunk que você está dentro!","/" + label + " setbiomechunk ",true));
+            FancyText.of("§3§l ▶ §b/" + label + " setbiomechunk <Bioma>","§bDefine o bioma da chunk que você está dentro!","/" + label + " setbiomechunk ").send(sender);
             return true;
         }
 
@@ -607,7 +608,7 @@ public class CMDIsland implements CommandExecutor {
         if (!island.ready) {
             if (!argumentos.getFlag("force").isSet()){
                 sender.sendMessage("§4§l ▶ §cExiste alguma operação pendente nessa ilha!");
-                FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " delete <Player> -force","§bDeleta a ilha de algum jogador!\n\nNá pratica não deleta fisicamente na hora, apenas remove o claim!\n\nFazendo com que o jogador tenha que criar uma nova ilha em outro lugar.\n\nNota: A ilha (construção fisica) será deletada no próximo restart!","/" + label + " delete",true));
+                FancyText.of("§5§l ▶ §6/" + label + " delete <Player> -force","§bDeleta a ilha de algum jogador!\n\nNá pratica não deleta fisicamente na hora, apenas remove o claim!\n\nFazendo com que o jogador tenha que criar uma nova ilha em outro lugar.\n\nNota: A ilha (construção fisica) será deletada no próximo restart!","/" + label + " delete").send(sender);
                 return true;
             }else {
                 island.ready = true;
@@ -615,10 +616,10 @@ public class CMDIsland implements CommandExecutor {
         }
 
         if (sender instanceof Player && !argumentos.getFlag("confirm").isSet()){
-            FancyText.sendTo(sender,
+            FancyFormatter.of(
                     new FancyText("§c§l ▶ §cDeletar ilha do jogador: §e" + playerData.getPlayerName() + " §cVocê tem certeza? ").setHoverText("§bDeixa a sua ilha Pública!"),
-                    new FancyText("§c[§lConfirmar§c]","§bVai deletar memo irmão? Tem certeza?\n\nClica ai então...","/" + label + " delete " + playerData.getPlayerName() + " -confirm -force",false)
-            );
+                    new FancyText("§c[§lConfirmar§c]","§bVai deletar memo irmão? Tem certeza?\n\nClica ai então...","/" + label + " delete " + playerData.getPlayerName() + " -confirm -force")
+            ).send(sender);
             return true;
         }
 
@@ -642,7 +643,7 @@ public class CMDIsland implements CommandExecutor {
         }
 
         if (argumentos.get(1).isEmpty() || argumentos.get(2).isEmpty()){
-            FancyText.sendTo(sender, new FancyText("§6§l ▶ §e/" + label + " setraio <Player> <Raio>","§bAltera o tamanho do raio da ilha!","/" + label + " setraio",true));
+            FancyText.of("§6§l ▶ §e/" + label + " setraio <Player> <Raio>","§bAltera o tamanho do raio da ilha!","/" + label + " setraio").send(sender);
             return true;
         }
 
@@ -695,7 +696,7 @@ public class CMDIsland implements CommandExecutor {
         PlayerData newOwner = argumentos.get(2).getPlayerData();
 
         if (argumentos.get(1).isEmpty() || argumentos.get(2).isEmpty()){
-            FancyText.sendTo(sender, new FancyText("§5§l ▶ §6/" + label + " transfer <oldOwner> <newOwner>","§bTransfere a ilha de um jogador para outro jogador!\n","/" + label + " transfer ",true));
+            FancyText.of("§5§l ▶ §6/" + label + " transfer <oldOwner> <newOwner>","§bTransfere a ilha de um jogador para outro jogador!\n","/" + label + " transfer ").send(sender);
             return true;
         }
 
@@ -754,7 +755,7 @@ public class CMDIsland implements CommandExecutor {
         }
 
         if (!argumentos.getFlag("confirm").isSet()){
-            FancyText.sendTo(sender, new FancyText("§5§l ▶ §a§l[Clique para confirmar]","§bConverte o banco de dados de MYSQL para YML!\n","/" + label + " convertdatabase -confirm",false));
+            FancyText.of("§5§l ▶ §a§l[Clique para confirmar]","§bConverte o banco de dados de MYSQL para YML!\n","/" + label + " convertdatabase -confirm").send(sender);
             return true;
         }
 

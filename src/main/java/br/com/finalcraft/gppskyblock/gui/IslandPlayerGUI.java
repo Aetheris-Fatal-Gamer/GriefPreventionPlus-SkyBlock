@@ -27,8 +27,8 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData, Gui> {
     protected final int RESET = 16;
 
     private static final RegexReplacer<Island> REGEX_REPLACER = new RegexReplacer<Island>()
-            .addMappedParser("owner", Island::getOwnerName)
-            .addMappedParser("public_state", island -> island.getClaim().isPublicEntryTrust() ? "§2§lPublica" : "§9§lPrivada!")
+            .addParser("owner", Island::getOwnerName)
+            .addParser("public_state", island -> island.getClaim().isPublicEntryTrust() ? "§2§lPublica" : "§9§lPrivada!")
             ;
 
     public IslandPlayerGUI(Player player, @Nullable Island island) {
@@ -46,7 +46,7 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData, Gui> {
         getGui().setItem(INFO,
                 FCItemFactory.from(Material.PAPER)
                         .applyIf(() -> CUSTOM_ICON != null, builder -> builder.material(CUSTOM_ICON).durability(12))
-                        .name("§a§l✞ §7§lCartaz§a§l ✞")
+                        .displayName("§a§l✞ §7§lCartaz§a§l ✞")
                         .lore(
                                 "§7§m--------§7§l< §a§lBoletim Informativo §7§l>§7§m------ --",
                                 "",
@@ -63,7 +63,7 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData, Gui> {
 
         getGui().setItem(TP_ISLAND_SPAWN,
                 FCItemFactory.from("BED")
-                        .name("§b§l☀ §a§lIsland Spawn")
+                        .displayName("§b§l☀ §a§lIsland Spawn")
                         .lore(
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
                                 "",
@@ -93,7 +93,7 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData, Gui> {
 
         getGui().setItem(SET_ISLAND_SPAWN,
                 FCItemFactory.from("COMPASS")
-                        .name("§b§l☀ §a§lRedefine Spawn")
+                        .displayName("§b§l☀ §a§lRedefine Spawn")
                         .lore(
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
                                 "",
@@ -109,7 +109,7 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData, Gui> {
 
         getGui().setItem(RESET,
                 FCItemFactory.from(Material.getMaterial("COMPASS"))
-                        .name("§b§l☀ §a§lRedefine Spawn")
+                        .displayName("§b§l☀ §a§lRedefine Spawn")
                         .lore(
                                 "§7§m-------------§7§l< §5§lFinalCraft §7§l>§7§m-------------",
                                 "",
@@ -167,7 +167,7 @@ public class IslandPlayerGUI extends PlayerGui<SBPlayerData, Gui> {
 
         GuiItem lockGuiItem = FCItemFactory.from("INK_SACK")
                 .durability(isPublic ? 10 : 8)
-                .name("§b§l☀ §a§lIsland Lock")
+                .displayName("§b§l☀ §a§lIsland Lock")
                 .lore(lorelines)
                 .asGuiItem();
 
