@@ -44,7 +44,7 @@ repositories {
 
 dependencies {
 
-    compile "br.com.finalcraft:EverNifeCore:2.0.3"
+    compile "br.com.finalcraft:EverNifeCore:2.0.4"
 
     compileOnly name: "griefdefender-1.4.4"
     compile fileTree(dir: "libs/griefdefenderlibs/", includes: ['*.jar'])
