@@ -1,72 +1,46 @@
 package br.com.finalcraft.gppskyblock.tasks;
 
-import br.com.finalcraft.gppskyblock.GPPSkyBlock;
+import br.com.finalcraft.evernifecore.scheduler.FCScheduler;
+import br.com.finalcraft.evernifecore.thread.SimpleThread;
 import br.com.finalcraft.gppskyblock.Island;
-import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
-public class SpawnTeleportTask extends BukkitRunnable {
-	private int countdown, errors;
+public class SpawnTeleportTask extends SimpleThread {
+
 	private Player player;
 	private Island island;
-	private Location location;
-	
+	private int countdown;
+
+	private Location startLocation;
+
 	private SpawnTeleportTask(Player player, Island island, int countdown) {
 		this.player = player;
 		this.island = island;
-		this.location = player.getLocation();
 		this.countdown = countdown;
+		this.startLocation = player.getLocation();
 	}
 
 	@Override
-	public void run() {
-		if (!player.isOnline()) {
-			this.cancel();
-			return;
-		}
-		
-		try {
-			if (!island.getSpawn().getChunk().load()) {
-				return;
-			}
-		} catch (Exception e1) {
-			return;
-		} finally {
-			errors++;
-			if (errors > 50) {
-				player.sendMessage(ChatColor.RED+"Teleport cancelado");
-				this.cancel();
+	protected void run() throws InterruptedException {
+		//Force chunk loading
+		Chunk islandChunk = FCScheduler.SynchronizedAction.runAndGet(() -> {
+			return island.getSpawn().getChunk();
+		});
+
+		for (int i = 0; i < countdown; i++) {
+			Thread.sleep(1000);
+			if (!player.isOnline() || this.player.getLocation().getWorld() != startLocation.getWorld() ||  this.player.getLocation().distanceSquared(startLocation) > 5) {
+				player.sendMessage("§e§l ▶ §cO teleporte foi cancelado pois você se moveu.");
 				return;
 			}
 		}
 
-		try {
-			if (this.location.distanceSquared(location)>0) {
-				player.sendMessage(ChatColor.RED+"Teleport cancelado");
-				this.cancel();
-				return;
-			}
-		} catch (IllegalStateException e) {
-			player.sendMessage(ChatColor.RED+"Teleport cancelado");
-			this.cancel();
-			return;
-		}
-		
-		if (countdown<=0) {
-			player.teleport(island.getSpawn());
-			if (countdown<-4) {
-				this.cancel();
-				return;
-			}
-			
-		}
-		
-		countdown--;
+		player.teleport(island.getSpawn());
 	}
 	
 	public static void teleportTask(Player player, Island island, int countdown) {
-		new SpawnTeleportTask(player, island, countdown * 4).runTaskTimer(GPPSkyBlock.getInstance(), 0L, 5L);
+		new SpawnTeleportTask(player, island, countdown * 4).start();
 	}
 }
