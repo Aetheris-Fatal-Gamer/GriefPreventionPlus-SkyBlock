@@ -1,8 +1,11 @@
 package br.com.finalcraft.gppskyblock.tasks;
 
 import br.com.finalcraft.evernifecore.minecraft.vector.BlockPos;
-import br.com.finalcraft.evernifecore.util.FCPosUtil;
-import br.com.finalcraft.evernifecore.util.commons.MinMax;
+import br.com.finalcraft.evernifecore.minecraft.vector.ChunkPos;
+import br.com.finalcraft.evernifecore.scheduler.FCScheduler;
+import br.com.finalcraft.evernifecore.time.FCTimeFrame;
+import br.com.finalcraft.evernifecore.util.FCCollectionsUtil;
+import br.com.finalcraft.evernifecore.vectors.CuboidSelection;
 import br.com.finalcraft.gppskyblock.GPPSkyBlock;
 import br.com.finalcraft.gppskyblock.Island;
 import br.com.finalcraft.gppskyblock.Utils;
@@ -18,43 +21,32 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.registry.LegacyWorldData;
 import com.sk89q.worldedit.world.registry.WorldData;
-import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 public class ResetIslandThread extends Thread {
 
-    private final ResetIslandThread instance;
     private final Island island;
-    private final String ownerName;
     private final IClaim claim;
-    private final World bWorld;
+    private final World world;
     private final Player player;
-    private final List<Supplier<Chunk>> bukkitChunkSuppliers = new ArrayList<>();
-    private final List<Runnable> bukkitChunkUnloaders = new ArrayList<>();
-    private final List<Runnable> bukkitBiomaChanger = new ArrayList<>();
     private final File schematic;
+    private long start;
 
     public ResetIslandThread(Island island, File schematic) {
-        this.instance = this;
         this.island = island;
-        this.ownerName = island.getOwnerName();
         this.claim  = island.getClaim();
-        this.bWorld = island.getClaim().getWorld();
+        this.world = island.getClaim().getWorld();
         this.player = island.getPlayer();
         this.schematic = schematic;
         this.setName("IslandResetThread - " + " - " + claim.getID() + " - " + island.getOwnerName());
@@ -66,48 +58,7 @@ public class ResetIslandThread extends Thread {
         if (player != null && player.isOnline()){
             player.sendMessage(message);
         }
-        GPPSkyBlock.info("[" + this.getName() + "] " + message);
-    }
-
-    private void fillSuppliers(){
-        bukkitChunkSuppliers.clear();
-        MinMax<BlockPos> minAndMaxPoints = FCPosUtil.getMinimumAndMaximum(Arrays.asList(BlockPos.from(claim.getLesserBoundaryCorner()), BlockPos.from(claim.getGreaterBoundaryCorner())));
-        int lowerX = minAndMaxPoints.getMin().getX() >> 4;
-        int lowerZ = minAndMaxPoints.getMin().getZ() >> 4;
-        int upperX = minAndMaxPoints.getMax().getX() >> 4;
-        int upperZ = minAndMaxPoints.getMax().getZ() >> 4;
-        for (; lowerX <= upperX; lowerX++) {
-            for (int z = lowerZ; z <= upperZ; z++) {
-                final int chunkXCoord = lowerX;
-                final int chunkZCoord = z;
-                bukkitChunkSuppliers.add(() -> {
-                    return bWorld.getChunkAt(chunkXCoord, chunkZCoord);
-                });
-                bukkitChunkUnloaders.add(() ->{
-                    bWorld.unloadChunk(chunkXCoord, chunkZCoord);
-                });
-                bukkitBiomaChanger.add(() ->{
-                    bWorld.setBiome(chunkXCoord, chunkZCoord, Biome.PLAINS);
-                });
-            }
-        }
-    }
-
-    private void regenChunk(Chunk bChunk){
-        for (Entity entity : bChunk.getEntities()) {
-            if (entity instanceof Player){
-                ((Player)entity).kickPlayer("§cUma ilha estava sendo resetada enquanto você estava próximo! T.T");
-            }else {
-                entity.remove();
-            }
-        }
-        bChunk.getWorld().regenerateChunk(bChunk.getX(), bChunk.getZ());
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                bChunk.unload(true);
-            }
-        }.runTaskLater(GPPSkyBlock.getInstance(),1);
+        GPPSkyBlock.info("[" + this.getName() + " - " + getTimeSinceStart() + "] " + message);
     }
 
     private void pasteSchematic(){
@@ -141,131 +92,97 @@ public class ResetIslandThread extends Thread {
             }
             e.printStackTrace();
         }
-        unpauseProcess();
     }
-
-    private void changeBiomes(){
-        for (Runnable runnable : bukkitBiomaChanger) {
-            try{
-                runnable.run();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void bringOwnerBack(){
-        if (player != null && player.isOnline()) {
-            player.sendMessage(ChatColor.GREEN+"A sua ilha foi gerada com sucesso! Você será teletransportado em " + GPPSkyBlock.getInstance().config().tpCountdown + " segundos.");
-            SpawnTeleportTask.teleportTask(player, island, GPPSkyBlock.getInstance().config().tpCountdown);
-        }
-    }
-
-    boolean canWeContinue = true;
-    private void pauseProcessUntilWeCanContinue() throws InterruptedException{
-        canWeContinue = false;
-        while (canWeContinue() == false){
-            Thread.sleep(100);
-        }
-    }
-
-    private void unpauseProcess(){
-        canWeContinue = true;
-    }
-
-    private boolean canWeContinue(){
-        return canWeContinue;
-    }
-
-    private void runSync(Runnable runnable){
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                runnable.run();
-            };
-        }.runTaskLater(GPPSkyBlock.getInstance(),1);
-    }
-
 
     private AtomicInteger failedChunks = new AtomicInteger(0);
+
+    private String getTimeSinceStart(){
+        return FCTimeFrame.of(System.currentTimeMillis() - start).getFormattedDiscursive(true);
+    }
 
     @Override
     public void run() {
         try {
-            sendMessage("§7§oIniciando Contagem de chunks da ilha!");
+            start = System.currentTimeMillis();
+            sendMessage(String.format("§7 ● §oIniciando Contagem de chunks da ilha!"));
             island.teleportEveryoneToSpawn();
-            fillSuppliers();
-            int totalChunks = bukkitChunkSuppliers.size();
 
-            sendMessage("§7§oIniciando restauração das " + totalChunks + " Chunks!");
+            CuboidSelection cuboidSelection = CuboidSelection.of(
+                    BlockPos.from(claim.getLesserBoundaryCorner()),
+                    BlockPos.from(claim.getGreaterBoundaryCorner())
+            );
 
-            int contador = 0;
-            int delay = 1;
-            for (int i = 0; i < bukkitChunkSuppliers.size(); i++) {
-                if (contador >= 9){
-                    contador = 0;
-                    delay++;
-                }
-                contador++;
-                final Supplier<Chunk> chunkSupplier = bukkitChunkSuppliers.get(i);
-                final boolean isLastChunk = (i == (bukkitChunkSuppliers.size() - 1));
-                new BukkitRunnable(){
-                    @Override
-                    public void run() {
-                        chunkSupplier.get();//Load the chunk
-                        new BukkitRunnable(){
-                            @Override
-                            public void run() {
-                                try {
-                                    final Chunk bChunk = chunkSupplier.get();
-                                    regenChunk(bChunk);
-                                }catch (Exception e){
-                                    synchronized (failedChunks){
-                                        failedChunks.incrementAndGet();
-                                    }
+            List<ChunkPos> allIslandChunks = cuboidSelection.getChunks();
+            sendMessage("§7 ● §oIniciando restauração das " + allIslandChunks.size() + " Chunks...");
+
+            List<List<ChunkPos>> subLists = FCCollectionsUtil.partitionEvenly(allIslandChunks, 20);
+
+            for (List<ChunkPos> chunksToReset : subLists) {
+
+                FCScheduler.SynchronizedAction.schedule(() -> {
+                    for (ChunkPos chunkPos : chunksToReset) {
+                        Chunk chunk = chunkPos.getChunk(claim.getWorld());
+                        try {
+                            //Kill all Entiteis
+                            for (Entity entity : chunk.getEntities()) {
+                                if (entity instanceof Player){
+                                    ((Player)entity).kickPlayer("§cUma ilha estava sendo resetada enquanto você estava próximo! T.T");
+                                }else {
+                                    entity.remove();
                                 }
                             }
-                        }.runTaskLater(GPPSkyBlock.getInstance(),1);
-                    }
-                }.runTaskLater(GPPSkyBlock.getInstance(),delay);
-                if (isLastChunk){
-                    new BukkitRunnable(){
-                        @Override
-                        public void run() {
-                            instance.unpauseProcess();
+
+                            //Regen the chunk
+                            world.regenerateChunk(chunk.getX(), chunk.getZ());
+
+                            //Change chunks biomes
+                            world.setBiome(chunk.getX(), chunk.getZ(), Biome.PLAINS);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            synchronized (failedChunks){
+                                failedChunks.incrementAndGet();
+                            }
                         }
-                    }.runTaskLater(GPPSkyBlock.getInstance(),delay + 5);
-                }
+                    }
+                },2); //  +-12 chunks per 2 tick
             }
 
-            pauseProcessUntilWeCanContinue();//Pause the Threads!
-            sendMessage("§7§oRestauração concluida, Iniciando colagem da nova ilha!");
+            sendMessage(String.format("§7 ● §oRestauração concluída, Iniciando colagem da nova ilha..."));
+            FCScheduler.SynchronizedAction.run(() -> {
+                pasteSchematic();
+            });
 
-            runSync(() -> pasteSchematic());
-            pauseProcessUntilWeCanContinue();//Pause the Threads!
+            sendMessage(String.format("§7 ● §oProcesso de colagem finalizado! Salvando Ilha."));
 
-            sendMessage("§7§oProcesso de colagem finalizado!");
-            sendMessage("§7§oParece que está tudo OK!");
+            FCScheduler.SynchronizedAction.schedule(() -> {
+                for (List<ChunkPos> chunksToReset : subLists) {
+                    for (ChunkPos chunkPos : chunksToReset) {
+                        world.unloadChunk(chunkPos.getX(), chunkPos.getZ(),true);
+                    }
+                }
+            }, 1);
+
+            sendMessage(String.format("§7 ● §oSalvamento Finalizado! Parece que está tudo OK!!!"));
             island.ready = true;
 
-            runSync(() -> {
-                for (Runnable bukkitChunkUnloader : bukkitChunkUnloaders) {
-                    bukkitChunkUnloader.run();
+            FCScheduler.runSync(() -> {
+                CuboidSelection center = CuboidSelection.of(BlockPos.from(island.getCenter()));
+                center.expand(32);
+                for (ChunkPos chunkPos : center.getChunks()) {
+                    world.refreshChunk(chunkPos.getX(), chunkPos.getZ());
                 }
             });
 
-            new BukkitRunnable(){
-                @Override
-                public void run() {
-                    changeBiomes();
-                }
-            }.runTaskLater(GPPSkyBlock.getInstance(),1);
-
-            bringOwnerBack();
+            //bringOwnerBack
+            if (player != null && player.isOnline()) {
+                player.sendMessage("§2§l ▶ §aA sua ilha foi gerada com sucesso! Você será teletransportado em " + GPPSkyBlock.getInstance().config().tpCountdown + " segundos.");
+                SpawnTeleportTask.teleportTask(player, island, GPPSkyBlock.getInstance().config().tpCountdown);
+            }
 
             if (failedChunks.get() > 0) {
-                GPPSkyBlock.debug("Aprentemente " + failedChunks.get() + " chunks falharam na restauração da ilha do jogador " + island.getOwnerName());
+                GPPSkyBlock.debug("Aparentemente " + failedChunks.get() + " chunks falharam na restauração da ilha do jogador " + island.getOwnerName());
             }
+
         }catch (Exception e){
             e.printStackTrace();
             sendMessage("§cErro ao tentar contar as chunks do seu Claim!");
