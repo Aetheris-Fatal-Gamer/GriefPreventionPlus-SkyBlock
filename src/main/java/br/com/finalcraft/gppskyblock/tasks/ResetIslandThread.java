@@ -22,8 +22,10 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.registry.LegacyWorldData;
 import com.sk89q.worldedit.world.registry.WorldData;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -165,11 +167,16 @@ public class ResetIslandThread extends Thread {
             sendMessage(String.format("§7 ● §oSalvamento Finalizado! Parece que está tudo OK!!!"));
             island.ready = true;
 
+            //With Chunk Grace period, is a good idea to 'touch' the main chunks to make them re-render corretly
             FCScheduler.runSync(() -> {
                 CuboidSelection center = CuboidSelection.of(BlockPos.from(island.getCenter()));
                 center.expand(32);
                 for (ChunkPos chunkPos : center.getChunks()) {
-                    world.refreshChunk(chunkPos.getX(), chunkPos.getZ());
+                    Block block = chunkPos.getBlock(0, 0, 0).getBlock(world);
+                    block.setType(Material.STONE);
+                    FCScheduler.scheduleSyncInTicks(() -> {
+                        block.setType(Material.AIR);
+                    }, 5);
                 }
             });
 
