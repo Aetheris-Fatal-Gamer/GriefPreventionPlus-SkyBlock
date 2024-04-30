@@ -67,8 +67,6 @@ public class CMDIsland implements CommandExecutor {
                 return publicc(label,sender,argumentos);
             case "reset":
                 return reset(label,sender,argumentos);
-            case "hardreset":
-                return hardreset(label,sender,argumentos);
             case "delete":
                 return delete(label,sender,argumentos);
             case "setraio":
@@ -535,52 +533,6 @@ public class CMDIsland implements CommandExecutor {
         island.reset();
         return true;
     }
-
-    // -----------------------------------------------------------------------------------------------------------------------------//
-    // Command hardreset
-    // -----------------------------------------------------------------------------------------------------------------------------//
-    public boolean hardreset(String label, CommandSender sender, MultiArgumentos argumentos){
-
-        if (true){
-            sender.sendMessage("§4§l ▶ §cPeça para um ADM realizar um HardReset para vc!");
-            return true;
-        }
-
-        if (FCBukkitUtil.isNotPlayer(sender)){
-            return true;
-        }
-
-        Player player = (Player) sender;
-
-        Island island = GPPSkyBlock.getInstance().getDataStore().getIsland(player.getUniqueId());
-
-        if (island == null) {
-            sender.sendMessage("§4§l ▶ §cVocê ainda não possui uma ilha nesse servidor! Para criar uma, use \"/"+label+" spawn\"");
-            return false;
-        }
-
-        String conf = confirmations.remove(player.getName());
-
-        if (conf == null || !conf.equals("hardreset")) {
-            sender.sendMessage("§4§l ▶ §c§lCUIDADO: §cSua ilha inteira será APAGADA!" +
-                    "\n§cSe você tem certeza disso, use \"/"+label+" hardreset\" novamente!\n\nVocê só poderá fazer isso 1 vez!");
-            this.confirmations.put(player.getName(), "hardreset");
-            return false;
-        }
-
-        PlayerData playerData = PlayerController.getPlayerData(player);
-
-        Cooldown cooldown = playerData.getCooldown("GPPSkyBlock-ISHARDRESET");
-        if (cooldown.isInCooldown()){
-            cooldown.warnPlayer(sender);
-            return true;
-        }
-        cooldown.setPersist(true);
-        cooldown.startWith(86313600);//999 Dias
-        island.reset();
-        return true;
-    }
-
 
     // -----------------------------------------------------------------------------------------------------------------------------//
     // Command delete
