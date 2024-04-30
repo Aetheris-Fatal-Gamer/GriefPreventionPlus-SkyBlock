@@ -41,6 +41,6 @@ public class SpawnTeleportTask extends SimpleThread {
 	}
 	
 	public static void teleportTask(Player player, Island island, int countdown) {
-		new SpawnTeleportTask(player, island, countdown * 4).start();
+		new SpawnTeleportTask(player, island, countdown).start();
 	}
 }
