@@ -37,7 +37,9 @@ public class SpawnTeleportTask extends SimpleThread {
 			}
 		}
 
-		player.teleport(island.getSpawn());
+		FCScheduler.runSync(() -> {
+			player.teleport(island.getSpawn());
+		});
 	}
 	
 	public static void teleportTask(Player player, Island island, int countdown) {
