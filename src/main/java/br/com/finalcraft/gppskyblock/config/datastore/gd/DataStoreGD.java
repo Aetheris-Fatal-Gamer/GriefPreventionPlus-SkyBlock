@@ -41,6 +41,12 @@ public class DataStoreGD extends DataStore {
 		
 		int bx = xz[0] << 9;
 		int bz = xz[1] << 9;
+
+		if (bx < 10_000 || bz < 10_000){
+			//Prevent new islands to be near than 10_000 blocks from zero,zero as usually there is a spawn over there '-'
+			instance.config().nextRegion++;
+			return createIsland(ownerUUID);
+		}
 		
 		World world = Bukkit.getWorld(instance.config().worldName);
 
